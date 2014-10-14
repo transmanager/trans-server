@@ -1,0 +1,117 @@
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  position: relative;
+  min-height: 100%;
+}
+body {
+  /* Margin bottom by footer height */
+  margin-bottom: 36px;
+}
+.footer {
+  position: absolute;
+  padding-top: 5px;
+  bottom: 0;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+  height: 36px;
+  background-color: #333333;
+}
+
+.box{
+	border-left: 1px solid #666666;
+    border-right: 1px solid #666666;
+    border-bottom: 1px solid #666666;
+}
+
+.nav-header h5 {
+	font-size: 16px;
+	margin-top: 20px;
+	margin-bottom: 10px;
+}
+
+.navbar-brand {
+	color: ivory;
+}
+
+.navbar-brand:hover {
+	color: lightgray;
+}
+
+.navbar-right a {
+	color: ivory;
+}
+
+.navbar-right>li>a:hover, .navbar-right>li>a:focus {
+	text-decoration: none;
+	background-color: dimgray;
+}
+
+.navbar-right>a:hover {
+	color: lightgray;
+}
+
+.nav .open>a, .nav .open>a:hover, .nav .open>a:focus {
+	background-color: dimgray;
+	border-color: #428bca;
+}
+
+.list-unstyled li {
+	margin-left: 10px;
+}
+
+.list-unstyled li>a {
+	color: #333333;
+}
+
+/* indent 2nd level */
+.list-unstyled li>ul>li {
+	margin-left: 15px;
+	padding: 2px;
+}
+
+.nav-tabs>li .close {
+	margin: -2px 0 0 10px;
+	font-size: 18px;
+}
+
+.nav-tabs {
+	border-bottom: 1px solid #666666;
+}
+
+.nav-tabs>li>a {
+	color: #999999;
+}
+
+.nav-tabs>li.active>a, .nav-tabs>li.active>a:hover, .nav-tabs>li.active>a:focus {
+	color: #333333;
+	cursor: default;
+	background-color: whitesmoke;
+	border: 1px solid #666666;
+	border-bottom-color: transparent;
+}
+
+.nav-tabs>li>a:hover, .nav-tabs>li>a:focus {
+	text-decoration: none;
+	border: 1px dashed #999999;
+	border-bottom-color: transparent;
+}
+
+.modal-header .close {
+	float: right;
+	font-size: 21px;
+	font-weight: 700;
+	line-height: 1;
+	color: #000;
+	text-shadow: 0 1px 0 #fff;
+	filter: alpha(opacity = 99);
+	opacity: .99;
+}
+
+.modal-header .close:hover, .modal-header .close:focus {
+	color: ivory;
+	text-decoration: none;
+	cursor: pointer;
+	filter: alpha(opacity = 80);
+	opacity: .8;
+}

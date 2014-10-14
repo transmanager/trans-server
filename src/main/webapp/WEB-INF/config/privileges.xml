@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<config>
+	<role editable="false" name="超级用户">
+		<module>System</module>
+		<module>User</module>
+		<module>Order</module>
+		<module>Event</module>
+		<module>Mobile</module>
+		<page>Home</page>
+		<page>Motorcade</page>
+		<page>Vehicle</page>
+		<page>Client</page>
+		<page>Cargo</page>
+		<page>Ore</page>
+		<page>User</page>
+		<page>Role</page>
+		<page>SelfSchedule</page>
+		<page>ClientSchedule</page>
+		<page>Order</page>
+		<page>Log</page>
+		<page>Exception</page>
+		<page>Status</page>
+		<action>Login</action>
+		<action>Logout</action>
+		<action>MotorcadeAdd</action>
+		<action>MotorcadeRemove</action>
+		<action>MotorcadeEdit</action>
+		<action>MotorcadeQuery</action>
+		<action>UserAdd</action>
+		<action>UserRemove</action>
+		<action>UserEdit</action>
+		<action>UserQuery</action>
+	</role>
+	
+	<role editable="true" name="长途车驾驶员">
+		<module>System</module>
+		<module>Mobile</module>
+		<page>Home</page>
+		<action>Login</action>
+		<action>Logout</action>
+	</role>
+	<role editable="true" name="中转车驾驶员">
+		<module>System</module>
+		<module>Mobile</module>
+		<page>Home</page>
+		<action>Login</action>
+		<action>Logout</action>
+	</role>
+	
+	<role editable="true" name="总经理助理">
+		<module>System</module>
+		<module>Mobile</module>
+		<page>Home</page>
+		<action>Login</action>
+		<action>Logout</action>
+	</role>
+	
+	<role editable="true" name="副总经理">
+		<module>System</module>
+		<module>Mobile</module>
+		<page>Home</page>
+		<action>Login</action>
+		<action>Logout</action>
+	</role>
+	
+	<role editable="true" name="总调度">
+		<module>System</module>
+		<module>Mobile</module>
+		<module>Order</module>
+		<page>Home</page>
+		<page>SelfSchedule</page>
+		<page>ClientSchedule</page>
+		<page>Order</page>
+		<action>Login</action>
+		<action>Logout</action>
+	</role>
+	
+	<role editable="true" name="值班调度">
+		<module>System</module>
+		<module>Mobile</module>
+		<module>Order</module>
+		<page>Home</page>
+		<page>SelfSchedule</page>
+		<page>ClientSchedule</page>
+		<page>Order</page>
+		<action>Login</action>
+		<action>Logout</action>
+	</role>
+	
+	<role editable="true" name="文员">
+		<module>System</module>
+		<module>Mobile</module>
+		<page>Home</page>
+		<action>Login</action>
+		<action>Logout</action>
+	</role>
+	
+	<role editable="true" name="修理工">
+		<module>System</module>
+		<module>Mobile</module>
+		<page>Home</page>
+		<action>Login</action>
+		<action>Logout</action>
+	</role>
+	
+	<role editable="true" name="加油工">
+		<module>System</module>
+		<module>Mobile</module>
+		<page>Home</page>
+		<action>Login</action>
+		<action>Logout</action>
+	</role>
+	
+	<role editable="true" name="维修工">
+		<module>System</module>
+		<module>Mobile</module>
+		<page>Home</page>
+		<action>Login</action>
+		<action>Logout</action>
+	</role>
+	
+	<role editable="true" name="门卫">
+		<module>System</module>
+		<module>Mobile</module>
+		<page>Home</page>
+		<action>Login</action>
+		<action>Logout</action>
+	</role>
+	
+	<role editable="true" name="客户">
+		<module>System</module>
+		<page>Home</page>
+		<action>Login</action>
+		<action>Logout</action>
+	</role>
+</config>
