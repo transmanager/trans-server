@@ -292,7 +292,7 @@ public class UserService implements ServiceInterface<User> {
 			InvocationTargetException, JSONException {
 		UserService service = new UserService();
 		service.add("admin", "admin", "admin", "超级用户");
-		//service.importUser("/Users/Channy/Desktop/Channy's/shaobao/names");
+		service.importUser("/Users/Channy/Desktop/Channy's/shaobao/names");
 		
 //		User user = service.getById(1);
 //		Set<Module> modules = user.getGrantedModules();

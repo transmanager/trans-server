@@ -80,16 +80,16 @@ String userInfo = String.format("%s (%s)", user.getName(), user.getRole().getNam
 	}
 
 	function initializeMenu() {
-		<% for (Module module : user.getGrantedModules()) {
-			if (module.isMobileOnly()) {
+		<% for (Module module : Module.values()) {
+			if (module.isMobileOnly() || !user.isGranted(module)) {
 				continue;
 			}
 		%>
 			var html = '<li class="nav-header">';
 			html += '<a href="javascript:;" data-toggle="collapse" data-target="#module_' + '<%=module%>"' + '><h5><i class="glyphicon glyphicon-tags"></i>&nbsp;&nbsp;<%=module.getDescription()%>&nbsp;&nbsp;<i class="glyphicon glyphicon-chevron-right"></i></h5></a>';
 			html += '<ul class="list-unstyled collapse" id="module_' + '<%=module%>' + '">';
-			<% for (Page p : user.getGrantedPages()) {
-				if (p.getParent() != module || p == Page.Home) {
+			<% for (Page p : Page.values()) {
+				if (p.getParent() != module || p == Page.Home || !user.isGranted(p)) {
 					continue;
 				}
 			%>

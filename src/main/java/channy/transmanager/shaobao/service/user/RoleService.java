@@ -21,8 +21,9 @@ import channy.util.ChannyException;
 
 public class RoleService implements ServiceInterface<Role> {
 	private RoleDao dao = new RoleDao();
-	
-	public Role add(String name, String description, Set<Module> grantedModules, Set<Page> grantedPages, Set<Action> grantedActions, boolean isEditable) {
+
+	public Role add(String name, String description, Set<Module> grantedModules, Set<Page> grantedPages, Set<Action> grantedActions,
+			boolean isEditable) {
 		Role role = new Role();
 		role.setName(name);
 		role.setDescription(description);
@@ -31,10 +32,10 @@ public class RoleService implements ServiceInterface<Role> {
 		role.setGrantedActions(grantedActions);
 		role.setEditable(isEditable);
 		dao.add(role);
-		
+
 		return role;
 	}
-	
+
 	public Role getById(long id) {
 		return dao.getById(id);
 	}
@@ -92,7 +93,7 @@ public class RoleService implements ServiceInterface<Role> {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 	public void importRoles() {
 		Set<Module> grantedModules = new HashSet<Module>();
 		Set<Page> grantedPages = new HashSet<Page>();
@@ -109,7 +110,7 @@ public class RoleService implements ServiceInterface<Role> {
 		for (Action a : Action.values()) {
 			grantedActions.add(a);
 		}
-		
+
 		add("超级用户", "", grantedModules, grantedPages, grantedActions, false);
 		add("长途车驾驶员", "", grantedModules, grantedPages, grantedActions, true);
 		add("中转车驾驶员", "", grantedModules, grantedPages, grantedActions, true);
