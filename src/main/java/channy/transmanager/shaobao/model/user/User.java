@@ -27,13 +27,13 @@ public class User extends BaseEntity {
 	private String password;
 	private boolean isLocked = false;
 	
-	@ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@Cascade(value = {CascadeType.SAVE_UPDATE})
 	@JoinColumn(name = "department")
 	private Department department;
 	
 	//@Transient
-	@OneToOne(fetch = FetchType.EAGER)
+	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "role")
 	@Cascade(CascadeType.SAVE_UPDATE)
 	private Role role = null;

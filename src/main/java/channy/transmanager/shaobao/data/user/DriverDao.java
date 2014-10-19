@@ -11,6 +11,7 @@ import channy.transmanager.shaobao.data.QueryResult;
 import channy.transmanager.shaobao.model.order.Order;
 import channy.transmanager.shaobao.model.order.OrderStatus;
 import channy.transmanager.shaobao.model.user.Driver;
+import channy.transmanager.shaobao.model.user.UserStatus;
 import channy.util.ChannyException;
 import channy.util.HibernateUtil;
 
@@ -216,5 +217,34 @@ public class DriverDao extends BaseDao<Driver> {
 		session.getTransaction().commit();
 
 		return result;
+	}
+	
+	public List<Driver> getAvailableDrivers() {
+		Session session = HibernateUtil.getCurrentSession();
+		session.beginTransaction();
+		Query query = session.createQuery("from Driver driver where driver.status = :status order by driver.lastOrder desc");
+		query.setParameter("status", UserStatus.Idle);
+		@SuppressWarnings("unchecked")
+		List<Driver> result = query.list();
+		session.getTransaction().commit();
+		return result;
+	}
+	
+	public Driver scheduleDriver() {
+		Session session = HibernateUtil.getCurrentSession();
+		session.beginTransaction();
+		Query query = session.createQuery("from Driver driver where driver.status = :status order by driver.lastOrder desc");
+		query.setParameter("status", UserStatus.Idle);
+		query.setFirstResult(0);
+		query.setMaxResults(1);
+		@SuppressWarnings("unchecked")
+		List<Driver> result = query.list();
+		session.getTransaction().commit();
+		
+		if (result.isEmpty()) {
+			return null;
+		}
+		
+		return result.get(0);
 	}
 }

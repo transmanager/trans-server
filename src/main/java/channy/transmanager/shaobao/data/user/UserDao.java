@@ -7,10 +7,12 @@ import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.hibernate.Session;
 import org.json.JSONException;
 import org.xml.sax.SAXException;
 
 import channy.util.ChannyException;
+import channy.util.HibernateUtil;
 import channy.transmanager.shaobao.data.BaseDao;
 import channy.transmanager.shaobao.data.QueryResult;
 import channy.transmanager.shaobao.model.user.User;
@@ -365,7 +367,14 @@ public class UserDao extends BaseDao<User> {
 
 	@Override
 	public QueryResult<User> query(int page, int pageSize, Map<String, Object> filter) throws ChannyException {
-		return super.query(page, pageSize, filter, User.class);
+		Session session = HibernateUtil.getCurrentSession();
+		session.beginTransaction();
+		QueryResult<User> result = super.query(page, pageSize, filter, session, User.class);
+		for (User user : result.getData()) {
+			user.getRole().getName();
+		}
+		session.getTransaction().commit();
+		return result;
 	}
 	
 	public User getByEmployeeId(String employeeId) {
@@ -384,5 +393,14 @@ public class UserDao extends BaseDao<User> {
 	
 	public List<User> getByName(String name) {
 		return super.getByField("name", name, User.class);
+	}
+	
+	public User getDetailByEmployeeId(String employeeId, Session session) {
+		List<User> result = super.getByField("employeeId", employeeId, session, User.class);
+		if (result == null) {
+			return null;
+		}
+		
+		return result.get(0);
 	}
 }

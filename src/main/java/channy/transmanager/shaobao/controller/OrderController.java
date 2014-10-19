@@ -52,6 +52,7 @@ import channy.transmanager.shaobao.service.ProductService;
 import channy.transmanager.shaobao.service.TollStationService;
 import channy.transmanager.shaobao.service.user.ClientService;
 import channy.transmanager.shaobao.service.user.DriverService;
+import channy.transmanager.shaobao.service.user.RoleService;
 import channy.transmanager.shaobao.service.vehicle.MotorcadeService;
 import channy.transmanager.shaobao.service.vehicle.TruckService;
 import channy.util.ChannyException;
@@ -72,6 +73,7 @@ public class OrderController {
 	private OreService oreService = new OreService();
 	private OrderService orderService = new OrderService();
 	private TollStationService tollStationService = new TollStationService();
+	private RoleService roleService = new RoleService();
 
 	@RequestMapping(value = "/order", method = RequestMethod.GET)
 	public String order() {
@@ -108,7 +110,9 @@ public class OrderController {
 		if (tmp != null) {
 			motorcade = motorcadeService.getByName(tmp);
 			if (motorcade == null) {
-				motorcade = motorcadeService.add(tmp, "系统自动添加");
+				motorcade = new Motorcade();
+				motorcade.setName(tmp);
+				motorcade.setDescription("系统自动添加");
 			}
 		}
 
@@ -123,6 +127,8 @@ public class OrderController {
 				throw new ChannyException(ErrorCode.UNSYNC, String.format("用户%s(%s)状态已改变：%s，无法被调度，请刷新后重试", driver.getName(), driver.getEmployeeId(),
 						driver.getStatus().getDescription()));
 			}
+
+			driver.setStatus(UserStatus.Delivering);
 		}
 
 		tmp = request.getParameter("truck");
@@ -130,8 +136,11 @@ public class OrderController {
 		if (tmp != null) {
 			truck = truckService.getByPlate(tmp);
 			if (truck == null) {
-				truckService.add(tmp, motorcade, "系统自动添加");
-				truck = truckService.getByPlate(tmp);
+				// truckService.add(tmp, motorcade, "系统自动添加");
+				// truck = truckService.getByPlate(tmp);
+				truck = new Truck();
+				truck.setPlate(tmp);
+				truck.setDescription("系统自动添加");
 				truck.setDriver(driver);
 				truck.setMotorcade(motorcade);
 			}
@@ -141,8 +150,8 @@ public class OrderController {
 						.getDescription()));
 			}
 			truck.setStatus(TruckStatus.Scheduled);
-			truck.getDriver().setStatus(UserStatus.Delivering);
-			truckService.update(truck);
+			// truck.getDriver().setStatus(UserStatus.Delivering);
+			// truckService.update(truck);
 		}
 
 		tmp = request.getParameter("client");
@@ -150,10 +159,11 @@ public class OrderController {
 		if (tmp != null) {
 			client = clientService.getByName(tmp);
 			if (client == null) {
-				client = clientService.add(tmp, "系统自动添加");
-				client.setLastOrder(new Date());
+				client = new Client();
+				client.setName(tmp);
+				client.setDescription("系统自动添加");
 				client.setOrderCount(client.getOrderCount() + 1);
-				clientService.update(client);
+				// clientService.update(client);
 			}
 		}
 
@@ -180,7 +190,6 @@ public class OrderController {
 
 		if (type != OrderType.OreOnly) {
 			tmp = request.getParameter("cargoInfo");
-			System.out.println("cargo=" + tmp);
 			if (tmp == null) {
 				throw new ChannyException(ErrorCode.BAD_ARGUMENT, String.format("无货物信息"));
 			}
@@ -196,7 +205,10 @@ public class OrderController {
 				tmp = cargoInfo.getString("cargoSource");
 				cargoSource = placeService.getByName(tmp);
 				if (cargoSource == null) {
-					cargoSource = placeService.add(tmp, "系统自动添加");
+					// cargoSource = placeService.add(tmp, "系统自动添加");
+					cargoSource = new Place();
+					cargoSource.setName(tmp);
+					cargoSource.setDescription("系统自动添加");
 				}
 			}
 
@@ -205,9 +217,16 @@ public class OrderController {
 				// String.format("无货物信息"));
 			} else {
 				tmp = cargoInfo.getString("cargoDestination");
-				cargoDestination = placeService.getByName(tmp);
+				if (cargoSource != null && cargoSource.getName().equals(tmp)) {
+					cargoDestination = cargoSource;
+				} else {
+					cargoDestination = placeService.getByName(tmp);
+				}
 				if (cargoDestination == null) {
-					cargoDestination = placeService.add(tmp, "系统自动添加");
+					// cargoDestination = placeService.add(tmp, "系统自动添加");
+					cargoDestination = new Place();
+					cargoDestination.setName(tmp);
+					cargoDestination.setDescription("系统自动添加");
 				}
 			}
 
@@ -230,7 +249,10 @@ public class OrderController {
 
 					Product p = productService.getByName(name);
 					if (p == null) {
-						p = productService.add(name, "系统自动添加");
+						// p = productService.add(name, "系统自动添加");
+						p = new Product();
+						p.setName(name);
+						p.setDescription("系统自动添加");
 					}
 
 					Cargo c = new Cargo();
@@ -254,7 +276,6 @@ public class OrderController {
 		Place oreDestination = null;
 		if (type != OrderType.CargoOnly) {
 			tmp = request.getParameter("oreInfo");
-			System.out.println("ore=" + tmp);
 			if (tmp == null) {
 				throw new ChannyException(ErrorCode.BAD_ARGUMENT, String.format("无矿物信息"));
 			}
@@ -270,9 +291,18 @@ public class OrderController {
 				// String.format("无装矿点"));
 			} else {
 				tmp = oreInfo.getString("oreSource");
-				oreSource = placeService.getByName(tmp);
+				if (cargoSource != null && cargoSource.getName().equals(tmp)) {
+					oreSource = cargoSource;
+				} else if (cargoDestination != null && cargoDestination.getName().equals(tmp)) {
+					oreSource = cargoDestination;
+				} else {
+					oreSource = placeService.getByName(tmp);
+				}
 				if (oreSource == null) {
-					oreSource = placeService.add(tmp, "系统自动添加");
+					// oreSource = placeService.add(tmp, "系统自动添加");
+					oreSource = new Place();
+					oreSource.setName(tmp);
+					oreSource.setDescription("系统自动添加");
 				}
 			}
 
@@ -281,9 +311,20 @@ public class OrderController {
 				// String.format("无装矿点"));
 			} else {
 				tmp = oreInfo.getString("oreDestination");
-				oreDestination = placeService.getByName(tmp);
+				if (cargoSource != null && cargoSource.getName().equals(tmp)) {
+					oreDestination = cargoSource;
+				} else if (cargoDestination != null && cargoDestination.getName().equals(tmp)) {
+					oreDestination = cargoDestination;
+				} else if (oreSource != null && oreSource.getName().equals(tmp)) {
+					oreDestination = oreSource;
+				} else {
+					oreDestination = placeService.getByName(tmp);
+				}
 				if (oreDestination == null) {
-					oreDestination = placeService.add(tmp, "系统自动添加");
+					// oreDestination = placeService.add(tmp, "系统自动添加");
+					oreDestination = new Place();
+					oreDestination.setName(tmp);
+					oreDestination.setDescription("系统自动添加");
 				}
 			}
 
@@ -293,7 +334,10 @@ public class OrderController {
 			tmp = oreInfo.getString("ore");
 			ore = oreService.getByName(tmp);
 			if (ore == null) {
-				ore = oreService.add(tmp, "系统自动添加");
+				// ore = oreService.add(tmp, "系统自动添加");
+				ore = new Ore();
+				ore.setName(tmp);
+				ore.setDescription("系统自动添加");
 			}
 		}
 
@@ -327,7 +371,10 @@ public class OrderController {
 		if (tmp != null) {
 			motorcade = motorcadeService.getByName(tmp);
 			if (motorcade == null) {
-				motorcade = motorcadeService.add(tmp, "系统自动添加");
+				// motorcade = motorcadeService.add(tmp, "系统自动添加");
+				motorcade = new Motorcade();
+				motorcade.setName(tmp);
+				motorcade.setDescription("系统自动添加");
 			}
 		}
 
@@ -343,6 +390,8 @@ public class OrderController {
 				throw new ChannyException(ErrorCode.UNSYNC, String.format("用户%s(%s)状态已改变：%s，无法被调度，请刷新后重试", driver.getName(), driver.getEmployeeId(),
 						driver.getStatus().getDescription()));
 			}
+
+			driver.setStatus(UserStatus.Delivering);
 		}
 
 		tmp = request.getParameter("truck");
@@ -360,8 +409,8 @@ public class OrderController {
 						.getDescription()));
 			}
 			truck.setStatus(TruckStatus.Scheduled);
-			truck.getDriver().setStatus(UserStatus.Delivering);
-			truckService.update(truck);
+			// truck.getDriver().setStatus(UserStatus.Delivering);
+			// truckService.update(truck);
 		}
 
 		tmp = request.getParameter("client");
@@ -369,10 +418,13 @@ public class OrderController {
 		if (tmp != null) {
 			client = clientService.getByName(tmp);
 			if (client == null) {
-				client = clientService.add(tmp, "系统自动添加");
+				client = new Client(1);
+				// client = clientService.add(tmp, "系统自动添加");
+				client.setName(tmp);
+				client.setDescription("系统自动添加");
 				client.setLastOrder(new Date());
 				client.setOrderCount(client.getOrderCount() + 1);
-				clientService.update(client);
+				// clientService.update(client);
 			}
 		}
 
@@ -393,34 +445,36 @@ public class OrderController {
 	}
 
 	@RequestMapping(value = "/order/refreshSchedule", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
-	public @ResponseBody String refreshTruck(@RequestParam("action") String action, HttpServletRequest request) throws JSONException,
+	public @ResponseBody String refreshTruckDriver(@RequestParam("action") String action, HttpServletRequest request) throws JSONException,
 			ChannyException, XPathExpressionException, SAXException, IOException, ParserConfigurationException {
 		if (Action.valueOf(Action.class, action) != Action.OrderRefreshSchedule) {
 			return new JsonResponse(ErrorCode.BAD_REQUEST_CODE).generate();
 		}
 
-		Truck truck = truckService.getNextCandidate();
-		JSONObject data = new JSONObject();
+		// Truck truck = truckService.getNextCandidate();
+		// JSONObject data = new JSONObject();
+		//
+		// if (truck == null) {
+		// return new JsonResponse(ErrorCode.GENERIC_ERROR,
+		// "暂无空闲车辆").generate();
+		// }
+		//
+		// JSONObject motorcade = new JSONObject();
+		// motorcade.put("id", truck.getMotorcade().getId());
+		// motorcade.put("text", truck.getMotorcade().getName());
+		// data.put("motorcade", motorcade);
+		//
+		// JSONObject t = new JSONObject();
+		// t.put("id", truck.getId());
+		// t.put("text", truck.getPlate());
+		// data.put("truck", t);
+		//
+		// JSONObject driver = new JSONObject();
+		// driver.put("id", truck.getDriver().getId());
+		// driver.put("text", truck.getDriver().getName());
+		// data.put("driver", driver);
 
-		if (truck == null) {
-			return new JsonResponse(ErrorCode.GENERIC_ERROR, "暂无空闲车辆").generate();
-		}
-
-		JSONObject motorcade = new JSONObject();
-		motorcade.put("id", truck.getMotorcade().getId());
-		motorcade.put("text", truck.getMotorcade().getName());
-		data.put("motorcade", motorcade);
-
-		JSONObject t = new JSONObject();
-		t.put("id", truck.getId());
-		t.put("text", truck.getPlate());
-		data.put("truck", t);
-
-		JSONObject driver = new JSONObject();
-		driver.put("id", truck.getDriver().getId());
-		driver.put("text", truck.getDriver().getName());
-		data.put("driver", driver);
-
+		JSONObject data = orderService.scheduleTruckDriver();
 		return new JsonResponse(ErrorCode.OK, data).generate();
 	}
 
@@ -439,7 +493,10 @@ public class OrderController {
 		if (tmp != null) {
 			motorcade = motorcadeService.getByName(tmp);
 			if (motorcade == null) {
-				motorcade = motorcadeService.add(tmp, "系统自动添加");
+				// motorcade = motorcadeService.add(tmp, "系统自动添加");
+				motorcade = new Motorcade();
+				motorcade.setName(tmp);
+				motorcade.setDescription("系统自动添加");
 			}
 		}
 
@@ -457,9 +514,12 @@ public class OrderController {
 		if (tmp != null) {
 			truck = truckService.getByPlate(tmp);
 			if (truck == null) {
-				truck = truckService.add(motorcade.getName(), tmp);
+				// truck = truckService.add(motorcade.getName(), tmp);
+				truck = new Truck();
+				truck.setPlate(tmp);
+				truck.setDescription("系统自动添加");
 				truck.setDriver(driver);
-				truckService.update(truck);
+				// truckService.update(truck);
 			}
 		}
 
@@ -468,10 +528,13 @@ public class OrderController {
 		if (tmp != null) {
 			client = clientService.getByName(tmp);
 			if (client == null) {
-				client = clientService.add(tmp, "系统自动添加");
+				// client = clientService.add(tmp, "系统自动添加");
+				client = new Client();
+				client.setName(tmp);
+				client.setDescription("系统自动添加");
 				client.setLastOrder(new Date());
 				client.setOrderCount(client.getOrderCount() + 1);
-				clientService.update(client);
+				// clientService.update(client);
 			}
 		}
 
@@ -611,7 +674,10 @@ public class OrderController {
 				tmp = cargoInfo.getString("cargoSource");
 				cargoSource = placeService.getByName(tmp);
 				if (cargoSource == null) {
-					cargoSource = placeService.add(tmp, "系统自动添加");
+					// cargoSource = placeService.add(tmp, "系统自动添加");
+					cargoSource = new Place();
+					cargoSource.setName(tmp);
+					cargoSource.setDescription("系统自动添加");
 				}
 			}
 
@@ -620,9 +686,16 @@ public class OrderController {
 				// String.format("无货物信息"));
 			} else {
 				tmp = cargoInfo.getString("cargoDestination");
-				cargoDestination = placeService.getByName(tmp);
+				if (cargoSource != null && cargoSource.getName().equals(tmp)) {
+					cargoDestination = cargoSource;
+				} else {
+					cargoDestination = placeService.getByName(tmp);
+				}
 				if (cargoDestination == null) {
-					cargoDestination = placeService.add(tmp, "系统自动添加");
+					// cargoDestination = placeService.add(tmp, "系统自动添加");
+					cargoDestination = new Place();
+					cargoDestination.setName(tmp);
+					cargoDestination.setDescription("系统自动添加");
 				}
 			}
 
@@ -645,7 +718,10 @@ public class OrderController {
 
 					Product p = productService.getByName(name);
 					if (p == null) {
-						p = productService.add(name, "系统自动添加");
+						// p = productService.add(name, "系统自动添加");
+						p = new Product();
+						p.setName(name);
+						p.setDescription("系统自动添加");
 					}
 					Cargo c = new Cargo();
 
@@ -702,9 +778,18 @@ public class OrderController {
 				// String.format("无装矿点"));
 			} else {
 				tmp = oreInfo.getString("oreSource");
-				oreSource = placeService.getByName(tmp);
+				if (cargoSource != null && cargoSource.getName().equals(tmp)) {
+					oreSource = cargoSource;
+				} else if (cargoDestination != null && cargoDestination.getName().equals(tmp)) {
+					oreSource = cargoDestination;
+				} else {
+					oreSource = placeService.getByName(tmp);
+				}
 				if (oreSource == null) {
-					oreSource = placeService.add(tmp, "系统自动添加");
+					// oreSource = placeService.add(tmp, "系统自动添加");
+					oreSource = new Place();
+					oreSource.setName(tmp);
+					oreSource.setDescription("系统自动添加");
 				}
 			}
 
@@ -713,9 +798,20 @@ public class OrderController {
 				// String.format("无装矿点"));
 			} else {
 				tmp = oreInfo.getString("oreDestination");
-				oreDestination = placeService.getByName(tmp);
+				if (cargoSource != null && cargoSource.getName().equals(tmp)) {
+					oreDestination = cargoSource;
+				} else if (cargoDestination != null && cargoDestination.getName().equals(tmp)) {
+					oreDestination = cargoDestination;
+				} else if (oreSource != null && oreSource.getName().equals(tmp)) {
+					oreDestination = oreSource;
+				} else {
+					oreDestination = placeService.getByName(tmp);
+				}
 				if (oreDestination == null) {
-					oreDestination = placeService.add(tmp, "系统自动添加");
+					// oreDestination = placeService.add(tmp, "系统自动添加");
+					oreDestination = new Place();
+					oreDestination.setName(tmp);
+					oreDestination.setDescription("系统自动添加");
 				}
 			}
 
@@ -725,7 +821,10 @@ public class OrderController {
 			tmp = oreInfo.getString("ore");
 			ore = oreService.getByName(tmp);
 			if (ore == null) {
-				ore = oreService.add(tmp, "系统自动添加");
+				// ore = oreService.add(tmp, "系统自动添加");
+				ore = new Ore();
+				ore.setName(tmp);
+				ore.setDescription("系统自动添加");
 			}
 
 			if (!oreInfo.has("oreWeight")) {
@@ -771,14 +870,23 @@ public class OrderController {
 			String en = obj.getString("entry");
 			TollStation entry = tollStationService.getByName(en);
 			if (entry == null) {
-				entry = tollStationService.add(en, "系统自动添加");
+				//entry = tollStationService.add(en, "系统自动添加");
+				entry = new TollStation();
+				entry.setName(en);
+				entry.setDescription("系统自动添加");
 			}
 			toll.setEntry(entry);
 
 			String ex = obj.getString("exit");
 			TollStation exit = tollStationService.getByName(ex);
+			if (entry != null && entry.getName().equals(ex)) {
+				exit = entry;
+			}
 			if (exit == null) {
-				exit = tollStationService.add(ex, "系统自动添加");
+				//exit = tollStationService.add(ex, "系统自动添加");
+				exit = new TollStation();
+				exit.setName(ex);
+				exit.setDescription("系统自动添加");
 			}
 			toll.setExit(exit);
 

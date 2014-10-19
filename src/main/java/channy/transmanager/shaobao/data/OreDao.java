@@ -1,14 +1,19 @@
 package channy.transmanager.shaobao.data;
 
+import java.util.List;
 import java.util.Map;
-
 
 import channy.transmanager.shaobao.model.Ore;
 import channy.util.ChannyException;
 
 public class OreDao extends BaseDao<Ore> {
 	public Ore getByName(String name) {
-		return (Ore) super.getByField("name", name, Ore.class);
+		List<Ore> ores =  super.getByField("name", name, Ore.class);
+		if (ores.isEmpty()) {
+			return null;
+		}
+		
+		return ores.get(0);
 	}
 	
 //	public static boolean exists(String name) {

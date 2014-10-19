@@ -237,7 +237,6 @@ public class OrderDao extends BaseDao<Order> {
 		}
 
 		order.setCargoWeight(cargoWeight);
-		order.setDateCreated(new Date());
 
 		order.setScheduler(scheduler);
 		// TODO: Update scheduler data
@@ -319,12 +318,73 @@ public class OrderDao extends BaseDao<Order> {
 
 	@Override
 	public QueryResult<Order> query(int page, int pageSize, Map<String, Object> filter) throws ChannyException {
-		return super.query(page, pageSize, filter, Order.class);
+		Session session = HibernateUtil.getCurrentSession();
+		session.beginTransaction();
+		QueryResult<Order> result = super.query(page, pageSize, filter, session, Order.class);
+		List<Order> orders = result.getData();
+		for (Order order : orders) {
+			order.getTruck().getMotorcade().getName();
+			order.getDriver().getName();
+		}
+		session.getTransaction().commit();
+		return result;
 	}
 
 	@Override
 	public int getCount(Map<String, Object> filter) throws ChannyException {
 		return super.getCount(Order.class, filter);
+	}
+
+	public Order getDetailById(long id) {
+		Session session = HibernateUtil.getCurrentSession();
+		session.beginTransaction();
+		Order order = super.getById(id, session, Order.class);
+		order.getTruck().getMotorcade().getName();
+		order.getDriver().getName();
+		order.getClient().getName();
+		order.getImage().size();
+		if (order.getCargoSource() != null) {
+			order.getCargoSource().getName();
+		}
+
+		if (order.getCargoDestination() != null) {
+			order.getCargoDestination().getName();
+		}
+
+		if (order.getOreSource() != null) {
+			order.getOreSource().getName();
+		}
+
+		if (order.getOreDestination() != null) {
+			order.getOreDestination().getName();
+		}
+
+		if (order.getOre() != null) {
+			order.getOre().getName();
+		}
+		
+		if (order.getTolls() != null) {
+			order.getTolls().size();
+		}
+		
+		if (order.getAbnormalities() != null) {
+			order.getAbnormalities().size();
+		}
+		
+		if (order.getExpenses() != null) {
+			order.getExpenses().size();
+		}
+		
+		if (order.getCargo() != null) {
+			order.getCargo().size();
+		}
+		session.getTransaction().commit();
+
+		return order;
+	}
+	
+	public Order getDetailById(long id, Session session) {
+		return super.getById(id, session, Order.class);
 	}
 
 	// public static JSONObject query(int page, int pageSize, Map<String,

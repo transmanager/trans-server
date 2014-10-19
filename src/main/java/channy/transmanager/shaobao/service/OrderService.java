@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.Session;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,7 +28,10 @@ import channy.transmanager.shaobao.model.user.UserStatus;
 import channy.transmanager.shaobao.model.vehicle.Motorcade;
 import channy.transmanager.shaobao.model.vehicle.Truck;
 import channy.transmanager.shaobao.model.vehicle.TruckStatus;
+import channy.transmanager.shaobao.service.user.DriverService;
+import channy.transmanager.shaobao.service.vehicle.TruckService;
 import channy.util.ChannyException;
+import channy.util.ErrorCode;
 
 public class OrderService implements ServiceInterface<Order> {
 	private OrderDao dao = new OrderDao();
@@ -254,6 +258,48 @@ public class OrderService implements ServiceInterface<Order> {
 		JSONObject data = new JSONObject();
 		data.put("status", status.getDesciption());
 		return data;
+	}
+	
+	public JSONObject scheduleTruckDriver() throws JSONException, ChannyException {
+		TruckService truckService = new TruckService();
+		Truck truck = truckService.getNextCandidate();
+		
+		if (truck == null) {
+			throw new ChannyException(ErrorCode.GENERIC_ERROR, "暂无空闲车辆");
+		}
+
+		DriverService driverService = new DriverService();
+		Driver driver = driverService.getNextCandidate();
+		
+		if (driver == null) {
+			throw new ChannyException(ErrorCode.GENERIC_ERROR, "暂无空闲驾驶员");
+		}
+		
+		JSONObject data = new JSONObject();
+		JSONObject motorcade = new JSONObject();
+		motorcade.put("id", truck.getMotorcade().getId());
+		motorcade.put("text", truck.getMotorcade().getName());
+		data.put("motorcade", motorcade);
+
+		JSONObject t = new JSONObject();
+		t.put("id", truck.getId());
+		t.put("text", truck.getPlate());
+		data.put("truck", t);
+		
+		JSONObject d = new JSONObject();
+		d.put("id", driver.getId());
+		d.put("text", driver.getName());
+		data.put("driver", d);
+		
+		return data;
+	}
+	
+	public Order getDetailById(long id) {
+		return dao.getDetailById(id);
+	}
+	
+	public Order getDetailById(long id, Session session) {
+		return dao.getDetailById(id, session);
 	}
 
 	public void removeExpired(List<Image> images) {

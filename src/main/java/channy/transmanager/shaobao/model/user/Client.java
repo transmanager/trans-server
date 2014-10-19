@@ -6,6 +6,8 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import channy.transmanager.shaobao.data.user.RoleDao;
+
 @Entity
 @Table(name = "clients")
 public class Client extends User {
@@ -18,6 +20,24 @@ public class Client extends User {
 	private double orderRate = 0; // number/month
 	private Date lastOrder;
 
+	public Client() {
+		
+	}
+	
+	/**
+	 * Workaround to be compatible with Hibernate restrictions
+	 * @param placeholder, just a place holder, could be value
+	 */
+	public Client(int placeholder) {
+		RoleDao dao = new RoleDao();
+		Role role = dao.getByName("客户");
+		if (role == null) {
+			role = dao.addClient();
+		}
+		
+		setRole(role);
+	}
+	
 	public int getOrderCount() {
 		return orderCount;
 	}

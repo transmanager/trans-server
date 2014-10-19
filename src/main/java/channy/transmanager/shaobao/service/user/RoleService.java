@@ -88,10 +88,18 @@ public class RoleService implements ServiceInterface<Role> {
 
 		return data;
 	}
+	
+	public Role addClient() {
+		return dao.addClient();
+	}
 
 	public JSONObject select(int page, int pageSize, Map<String, Object> filter) throws ChannyException, JSONException {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	public Role getByName(String name) {
+		return dao.getByName(name);
 	}
 
 	public void importRoles() {

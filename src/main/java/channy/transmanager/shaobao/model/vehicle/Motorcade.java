@@ -23,7 +23,7 @@ public class Motorcade extends BaseEntity {
 	private static final long serialVersionUID = 6839923710816694491L;
 	private String name;
 	
-	@OneToMany(fetch = FetchType.EAGER, mappedBy = "motorcade")
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "motorcade")
 	@Cascade(value = {CascadeType.REFRESH})
 	private Set<Truck> trucks;
 

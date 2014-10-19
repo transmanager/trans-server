@@ -117,7 +117,7 @@ td {
 	                	action: '<%=Action.UserQuery%>',
 	                    name: term, // search term
 	                    role : '驾驶员',
-	                    status : 'Normal',
+	                    status : 'Idle',
 	                    pageSize: 10, // page size
 	                    page: page, // page number
 	                };

@@ -27,7 +27,7 @@ import channy.util.ChannyException;
 import channy.util.ErrorCode;
 import channy.util.XmlOperator;
 
-public class RoleDao extends BaseDao<Role>  {
+public class RoleDao extends BaseDao<Role> {
 	public static boolean roleExists(String name) throws XPathExpressionException, SAXException, IOException, ParserConfigurationException {
 		String xpath = String.format("/config/role[@name=%s]", XmlOperator.escape(name));
 		ArrayList<String> list = XmlOperator.read(Configuration.Privilege, xpath, "name");
@@ -104,8 +104,8 @@ public class RoleDao extends BaseDao<Role>  {
 		return r;
 	}
 
-	public static void add(String name, Set<Module> grantedModules, Set<Page> grantedPages, Set<Action> grantedActions) throws XPathExpressionException, SAXException,
-			IOException, ParserConfigurationException, ChannyException {
+	public static void add(String name, Set<Module> grantedModules, Set<Page> grantedPages, Set<Action> grantedActions)
+			throws XPathExpressionException, SAXException, IOException, ParserConfigurationException, ChannyException {
 		if (RoleDao.roleExists(name)) {
 			throw new ChannyException(ErrorCode.USER_EXISTED);
 		}
@@ -129,8 +129,8 @@ public class RoleDao extends BaseDao<Role>  {
 	}
 
 	@SuppressWarnings("unused")
-	private static void addBuiltinRole(String name, Set<Module> grantedModules, Set<Page> grantedPages, Set<Action> grantedActions) throws XPathExpressionException,
-			SAXException, IOException, ParserConfigurationException, ChannyException {
+	private static void addBuiltinRole(String name, Set<Module> grantedModules, Set<Page> grantedPages, Set<Action> grantedActions)
+			throws XPathExpressionException, SAXException, IOException, ParserConfigurationException, ChannyException {
 		if (RoleDao.roleExists(name)) {
 			throw new ChannyException(ErrorCode.USER_EXISTED);
 		}
@@ -153,8 +153,8 @@ public class RoleDao extends BaseDao<Role>  {
 		}
 	}
 
-	public static JSONObject querySelect(int page, int pageSize, String term) throws XPathExpressionException, SAXException, IOException, ParserConfigurationException,
-			JSONException, ChannyException {
+	public static JSONObject querySelect(int page, int pageSize, String term) throws XPathExpressionException, SAXException, IOException,
+			ParserConfigurationException, JSONException, ChannyException {
 		JSONObject result = new JSONObject();
 		String condition = "";
 		String xpath = String.format("/config/role", condition);
@@ -164,7 +164,7 @@ public class RoleDao extends BaseDao<Role>  {
 			condition = XmlOperator.assembleXpathCondition(filter);
 			xpath += String.format("[%s]", condition);
 		}
-		
+
 		xpath += String.format("[@name!='%s']", "超级用户");
 		System.out.println(xpath);
 
@@ -194,7 +194,8 @@ public class RoleDao extends BaseDao<Role>  {
 		return result;
 	}
 
-	public static void main(String[] args) throws XPathExpressionException, SAXException, IOException, ParserConfigurationException, ChannyException, JSONException {
+	public static void main(String[] args) throws XPathExpressionException, SAXException, IOException, ParserConfigurationException, ChannyException,
+			JSONException {
 		// Role role = RoleDao.getRoleByName("超级用户");
 		// System.out.println(role.getGrantedModules().get(0));
 		// System.out.println(RoleDao.roleExists("超级用户"));
@@ -235,7 +236,7 @@ public class RoleDao extends BaseDao<Role>  {
 		for (Action a : Action.values()) {
 			grantedActions.add(a);
 		}
-		
+
 		RoleDao.add("超级用户", grantedModules, grantedPages, grantedActions);
 	}
 
@@ -258,13 +259,34 @@ public class RoleDao extends BaseDao<Role>  {
 	public int getCount(Map<String, Object> filter) throws ChannyException {
 		return super.getCount(Role.class, filter);
 	}
-	
+
 	public Role getByName(String name) {
 		List<Role> roles = super.getByField("name", name, Role.class);
 		if (roles != null) {
 			return roles.get(0);
 		}
-		
+
 		return null;
+	}
+
+	public Role addClient() {
+		Role role = new Role();
+		role.setName("客户");
+		role.setEditable(true);
+		role.setDescription("系统自动添加");
+		Set<Module> modules = new HashSet<Module>();
+		Set<Page> pages = new HashSet<Page>();
+		Set<Action> actions = new HashSet<Action>();
+
+		actions.add(Action.Login);
+		actions.add(Action.Logout);
+
+		role.setGrantedModules(modules);
+		role.setGrantedPages(pages);
+		role.setGrantedActions(actions);
+
+		add(role);
+		
+		return role;
 	}
 }

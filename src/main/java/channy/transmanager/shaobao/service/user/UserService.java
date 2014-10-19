@@ -12,6 +12,7 @@ import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.hibernate.Session;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,6 +28,7 @@ import channy.transmanager.shaobao.model.user.Oiler;
 import channy.transmanager.shaobao.model.user.Role;
 import channy.transmanager.shaobao.model.user.Scheduler;
 import channy.transmanager.shaobao.model.user.User;
+import channy.transmanager.shaobao.model.user.UserStatus;
 import channy.transmanager.shaobao.service.ServiceInterface;
 import channy.util.ChannyException;
 import channy.util.ErrorCode;
@@ -91,6 +93,10 @@ public class UserService implements ServiceInterface<User> {
 		entity.setName(name);
 		entity.setPassword(Sha1.encode(password));
 		entity.setRole(r);
+		
+		if (clazz == Driver.class) {
+			entity.setStatus(UserStatus.Idle);
+		}
 		// entity.setDbRole(role);
 		// setEmployeeId.invoke(entity, employeeId);
 		// setName.invoke(entity);
@@ -107,7 +113,6 @@ public class UserService implements ServiceInterface<User> {
 	}
 
 	public User getByEmployeeId(String id) {
-
 		return dao.getByEmployeeId(id);
 	}
 
@@ -164,12 +169,11 @@ public class UserService implements ServiceInterface<User> {
 
 	
 	public JSONObject select(int page, int pageSize, Map<String, Object> filter) throws ChannyException, JSONException {
-
 		QueryResult<User> result = dao.query(page, pageSize, filter);
 		List<User> list = result.getData();
 
 		JSONObject obj = new JSONObject();
-		obj.put("match", result.getMatch());
+		obj.put("total", result.getMatch());
 
 		JSONArray array = new JSONArray();
 		for (User user : list) {
@@ -239,6 +243,13 @@ public class UserService implements ServiceInterface<User> {
 
 		return ErrorCode.OK;
 	}
+	
+	public User getDetailByEmployeeId(String employeeId, Session session) {
+		User user = dao.getDetailByEmployeeId(employeeId, session);
+		user.getRole().getName();
+		//System.out.println(user.getRole().getName());
+		return user;
+	}
 
 	public void importUser(String fileName) throws XPathExpressionException, SAXException, ParserConfigurationException, ChannyException,
 			SecurityException, IllegalArgumentException, InstantiationException, IllegalAccessException, NoSuchMethodException,
@@ -300,5 +311,13 @@ public class UserService implements ServiceInterface<User> {
 //			System.out.println(module.getDescription());
 //		}
 		
+//		Session session = HibernateUtil.getCurrentSession();
+//		session.beginTransaction();
+//		User user = service.getDetailByEmployeeId("admin", session);
+//		session.getTransaction().commit();
+//		System.out.println(user.getRole().getName());
+		
+		//System.out.println(service.auth("admin", "admin").getDetail());
 	}
+	
 }

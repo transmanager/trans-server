@@ -67,14 +67,11 @@ public class TruckService implements ServiceInterface<Truck> {
 			throw new ChannyException(ErrorCode.OBJECT_EXISTED);
 		}
 
-//		MotorcadeService s = new MotorcadeService();
-//		Motorcade m = s.getByName(motorcade);
-//		if (m == null) {
-//			s.add(motorcade, "系统自动添加");
-//		}
-		Motorcade m = new Motorcade();
-		m.setName(motorcade);
-		m.setDescription("系统自动添加");
+		MotorcadeService s = new MotorcadeService();
+		Motorcade m = s.getByName(motorcade);
+		if (m == null) {
+			m = s.add(motorcade, "系统自动添加");
+		}
 		Truck truck = new Truck();
 		truck.setPlate(plate);
 		truck.setDescription(description);
@@ -136,12 +133,7 @@ public class TruckService implements ServiceInterface<Truck> {
 	}
 
 	public Truck getNextCandidate() {
-		List<Truck> candidates = getAvailableTrucks();
-		if (candidates.size() == 0) {
-			return null;
-		} else {
-			return candidates.get(0);
-		}
+		return dao.scheduleTruck();
 	}
 
 	public List<Truck> getAvailableTrucks() {
@@ -194,5 +186,9 @@ public class TruckService implements ServiceInterface<Truck> {
 	public static void main(String[] args) throws XPathExpressionException, SAXException, ParserConfigurationException, ChannyException {
 		TruckService service = new TruckService();
 		service.importTruck("/Users/Channy/Desktop/Channy's/shaobao/drivers");
+		
+		//Truck truck = service.getNextCandidate();
+		//System.out.println(truck.getPlate());
+		//System.out.println(truck.getDriver().getName());
 	}
 }

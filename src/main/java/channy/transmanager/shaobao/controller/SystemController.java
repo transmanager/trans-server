@@ -10,6 +10,7 @@ import javax.servlet.http.HttpSession;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.hibernate.Session;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -55,7 +56,7 @@ public class SystemController {
 	private ProductService productService = new ProductService();
 	private OreService oreService = new OreService();
 	private TollStationService tollStationService = new TollStationService();
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(SystemController.class);
 
 	/**
@@ -69,14 +70,17 @@ public class SystemController {
 	}
 
 	@RequestMapping(value = "/login", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
-	public @ResponseBody String login(@RequestParam("id") String id, @RequestParam("password") String password, HttpSession session) throws XPathExpressionException, SAXException,
-			IOException, ParserConfigurationException {
+	public @ResponseBody String login(@RequestParam("id") String id, @RequestParam("password") String password, HttpSession session)
+			throws XPathExpressionException, SAXException, IOException, ParserConfigurationException {
 		ErrorCode code = userService.auth(id, password);
 		if (!code.isOK()) {
 			return new JsonResponse(code).generate();
 		}
 
-		User user = userService.getByEmployeeId(id);
+		Session s = HibernateUtil.getCurrentSession();
+		s.beginTransaction();
+		User user = userService.getDetailByEmployeeId(id, s);
+		s.getTransaction().commit();
 		session.setAttribute("currentUser", user);
 
 		JSONObject data = new JSONObject();
@@ -88,7 +92,7 @@ public class SystemController {
 
 		return new JsonResponse(ErrorCode.OK, data).generate();
 	}
-	
+
 	@RequestMapping(value = "/logout", method = RequestMethod.GET)
 	public ModelAndView logout(HttpSession session) {
 		session.invalidate();
@@ -99,15 +103,15 @@ public class SystemController {
 	public String main() {
 		return "frames/main";
 	}
-	
+
 	@RequestMapping(value = "/system/vehicle", method = RequestMethod.GET)
 	public String vehicle() {
 		return "system/vehicle";
 	}
-	
+
 	@RequestMapping(value = "/system/motorcade/select", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
-	public @ResponseBody String selectMotorcade(@RequestParam("action") String action, @RequestParam("page") int page, @RequestParam("pageSize") int pageSize, HttpServletRequest request)
-			throws JSONException, ChannyException {
+	public @ResponseBody String selectMotorcade(@RequestParam("action") String action, @RequestParam("page") int page,
+			@RequestParam("pageSize") int pageSize, HttpServletRequest request) throws JSONException, ChannyException {
 		if (Action.valueOf(Action.class, action) != Action.MotorcadeQuery) {
 			return new JsonResponse(ErrorCode.BAD_REQUEST_CODE).generate();
 		}
@@ -122,10 +126,10 @@ public class SystemController {
 		JSONObject data = motorcadeService.select(page - 1, pageSize, filter);
 		return new JsonResponse(ErrorCode.OK, data).generate();
 	}
-	
+
 	@RequestMapping(value = "/system/vehicle/select", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
-	public @ResponseBody String selectVehicle(@RequestParam("action") String action, @RequestParam("page") int page, @RequestParam("pageSize") int pageSize, HttpServletRequest request)
-			throws JSONException, ChannyException {
+	public @ResponseBody String selectVehicle(@RequestParam("action") String action, @RequestParam("page") int page,
+			@RequestParam("pageSize") int pageSize, HttpServletRequest request) throws JSONException, ChannyException {
 		if (Action.valueOf(Action.class, action) != Action.TruckQuery) {
 			return new JsonResponse(ErrorCode.BAD_REQUEST_CODE).generate();
 		}
@@ -140,10 +144,10 @@ public class SystemController {
 		JSONObject data = truckService.select(page - 1, pageSize, filter);
 		return new JsonResponse(ErrorCode.OK, data).generate();
 	}
-	
+
 	@RequestMapping(value = "/system/place/select", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
-	public @ResponseBody String selectPlace(@RequestParam("action") String action, @RequestParam("page") int page, @RequestParam("pageSize") int pageSize, HttpServletRequest request)
-			throws JSONException, ChannyException {
+	public @ResponseBody String selectPlace(@RequestParam("action") String action, @RequestParam("page") int page,
+			@RequestParam("pageSize") int pageSize, HttpServletRequest request) throws JSONException, ChannyException {
 		if (Action.valueOf(Action.class, action) != Action.PlaceQuery) {
 			return new JsonResponse(ErrorCode.BAD_REQUEST_CODE).generate();
 		}
@@ -158,10 +162,10 @@ public class SystemController {
 		JSONObject data = placeService.select(page - 1, pageSize, filter);
 		return new JsonResponse(ErrorCode.OK, data).generate();
 	}
-	
+
 	@RequestMapping(value = "/system/product/select", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
-	public @ResponseBody String selectProduct(@RequestParam("action") String action, @RequestParam("page") int page, @RequestParam("pageSize") int pageSize, HttpServletRequest request)
-			throws JSONException, ChannyException {
+	public @ResponseBody String selectProduct(@RequestParam("action") String action, @RequestParam("page") int page,
+			@RequestParam("pageSize") int pageSize, HttpServletRequest request) throws JSONException, ChannyException {
 		if (Action.valueOf(Action.class, action) != Action.ProductQuery) {
 			return new JsonResponse(ErrorCode.BAD_REQUEST_CODE).generate();
 		}
@@ -176,10 +180,10 @@ public class SystemController {
 		JSONObject data = productService.select(page - 1, pageSize, filter);
 		return new JsonResponse(ErrorCode.OK, data).generate();
 	}
-	
+
 	@RequestMapping(value = "/system/ore/select", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
-	public @ResponseBody String selectOre(@RequestParam("action") String action, @RequestParam("page") int page, @RequestParam("pageSize") int pageSize, HttpServletRequest request)
-			throws JSONException, ChannyException {
+	public @ResponseBody String selectOre(@RequestParam("action") String action, @RequestParam("page") int page,
+			@RequestParam("pageSize") int pageSize, HttpServletRequest request) throws JSONException, ChannyException {
 		if (Action.valueOf(Action.class, action) != Action.OreQuery) {
 			return new JsonResponse(ErrorCode.BAD_REQUEST_CODE).generate();
 		}
@@ -194,10 +198,10 @@ public class SystemController {
 		JSONObject data = oreService.select(page - 1, pageSize, filter);
 		return new JsonResponse(ErrorCode.OK, data).generate();
 	}
-	
+
 	@RequestMapping(value = "/system/tollstation/select", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
-	public @ResponseBody String selectTollStation(@RequestParam("action") String action, @RequestParam("page") int page, @RequestParam("pageSize") int pageSize, HttpServletRequest request)
-			throws JSONException, ChannyException {
+	public @ResponseBody String selectTollStation(@RequestParam("action") String action, @RequestParam("page") int page,
+			@RequestParam("pageSize") int pageSize, HttpServletRequest request) throws JSONException, ChannyException {
 		if (Action.valueOf(Action.class, action) != Action.TollStationQuery) {
 			return new JsonResponse(ErrorCode.BAD_REQUEST_CODE).generate();
 		}
