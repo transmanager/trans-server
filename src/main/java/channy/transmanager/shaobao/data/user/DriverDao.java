@@ -186,23 +186,6 @@ public class DriverDao extends BaseDao<Driver> {
 	public List<Order> sync(Driver driver) {
 		String hql = String
 				.format("from Order order where order.driver = :driver and order.status != :s0 and order.status != :s1 and order.status != :s2 and order.status != :s3");
-		// Session session = HibernateUtil.openSession();
-		// try {
-		// session.beginTransaction();
-		// Query query = session.createQuery(hql);
-		// query.setParameter("driver", driver);
-		// query.setParameter("s0", OrderStatus.ExpensesVerificationPending);
-		// query.setParameter("s1", OrderStatus.CargoVerificationPending);
-		// query.setParameter("s2", OrderStatus.ClearancePending);
-		// query.setParameter("s3", OrderStatus.Closed);
-		// @SuppressWarnings("unchecked")
-		// List<Order> result = query.list();
-		// session.getTransaction().commit();
-		//
-		// return result;
-		// } finally {
-		// session.close();
-		// }
 
 		Session session = HibernateUtil.getCurrentSession();
 		session.beginTransaction();
@@ -214,6 +197,11 @@ public class DriverDao extends BaseDao<Driver> {
 		query.setParameter("s3", OrderStatus.Closed);
 		@SuppressWarnings("unchecked")
 		List<Order> result = query.list();
+		for (Order order : result) {
+			order.getDriver().getName();
+			order.getTruck().getPlate();
+			order.getClient().getName();
+		}
 		session.getTransaction().commit();
 
 		return result;

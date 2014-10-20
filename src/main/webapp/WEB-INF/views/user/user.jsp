@@ -284,9 +284,9 @@
 
 				var token = response.data.token;
 
-				//sync(token);
+				sync(token);
 				//uploadImage(token);
-				multipleUpload(token);
+				//multipleUpload(token);
 			},
 
 			error : function (jqXHR, textStatus, errorThrown) {
@@ -454,7 +454,7 @@
 			type : 'post',
 			data : {
 				action : '<%=Action.MobileSync%>',
-				employeeId: '10008',
+				employeeId: '10001',
 				token: token,
 			},
 			beforeSend : function() {

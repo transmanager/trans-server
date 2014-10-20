@@ -22,6 +22,7 @@ public class DriverService extends UserService {
 			JSONObject obj = new JSONObject();
 			obj.put("id", order.getId());
 			obj.put("client", order.getClient().getName());
+			obj.put("truck", order.getTruck().getPlate());
 			obj.put("status", order.getStatus().getDesciption());
 
 			if (order.getdId() == null) {

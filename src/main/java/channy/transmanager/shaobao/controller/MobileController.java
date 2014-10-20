@@ -137,7 +137,11 @@ public class MobileController {
 	@RequestMapping(value = "/mobile/sync", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
 	public @ResponseBody String sync(@RequestParam("action") String action, @RequestParam("employeeId") String employeeId,
 			@RequestParam("token") String token, HttpServletRequest request) throws JSONException, ChannyException {
-		User user = userService.getByEmployeeId(employeeId);
+		Session session = HibernateUtil.getCurrentSession();
+		session.beginTransaction();
+		User user = userService.getDetailByEmployeeId(employeeId, session);
+		user.getRole().getName();
+		session.getTransaction().commit();
 		ErrorCode code = TokenDao.authenticate(user, token);
 		if (!code.isOK()) {
 			return new JsonResponse(code).generate();
@@ -153,7 +157,6 @@ public class MobileController {
 			data = driverService.sync(driver);
 		}
 
-		System.out.println(new JsonResponse(ErrorCode.OK, data).generate());
 		return new JsonResponse(ErrorCode.OK, data).generate();
 	}
 
