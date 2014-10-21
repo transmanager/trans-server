@@ -1,3 +1,6 @@
+<%@page import="channy.transmanager.shaobao.feature.Action"%>
+<%@page import="channy.transmanager.shaobao.feature.Page"%>
+<%@page import="channy.transmanager.shaobao.feature.Module"%>
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -6,22 +9,22 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<!-- <link rel="shortcut icon" href="resources/images/MAnywhere.ico"/> -->
+<!-- <link rel="shortcut icon" href="../resources/images/MAnywhere.ico"/> -->
 <!-- jQuery -->
-<script type="text/javascript" src="resources/js/jquery-1.9.1.js"></script>
+<script type="text/javascript" src="../resources/js/jquery-1.9.1.js"></script>
 
 <!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="resources/css/bootstrap.min.css" />
+<link rel="stylesheet" href="../resources/css/bootstrap.min.css" />
 
 <!-- Optional theme -->
-<link rel="stylesheet" href="resources/css/bootstrap-theme.min.css" />
+<link rel="stylesheet" href="../resources/css/bootstrap-theme.min.css" />
 
-<link rel="stylesheet" href="resources/css/style.css" />
+<link rel="stylesheet" href="../resources/css/style.css" />
 
-<link rel="stylesheet" href="resources/css/tree.css" />
+<link rel="stylesheet" href="../resources/css/tree.css" />
 
 <!-- Latest compiled and minified JavaScript -->
-<script src="resources/js/bootstrap.min.js"></script>
+<script src="../resources/js/bootstrap.min.js"></script>
 
 <script type="text/javascript">
 	$(document).ready(function() {
@@ -29,7 +32,7 @@
 	});
 
 	function initTree() {
-		$('.tree li:has(ul)').addClass('parent_li').find(' > span').attr('title', 'Collapse this branch');
+		$('.tree li:has(ul)').addClass('parent_li').find(' > span')/* .attr('title', 'Collapse this branch') */;
 	    $('.tree li.parent_li > span').on('click', function (e) {
 	        var children = $(this).parent('li.parent_li').find(' > ul > li');
 	        if (children.is(":visible")) {
@@ -45,63 +48,30 @@
 </script>
 
 </head>
-<body class="whitesmoke-body">
-	<div class="tree well">
-	    <ul>
-	        <li>
-	            <span><i class="glyphicon glyphicon-folder-open"></i> Parent</span> <a href="">Goes somewhere</a>
-	            <ul>
-	                <li>
-	                	<span><i class="glyphicon glyphicon-minus-sign"></i> Child</span> <a href="">Goes somewhere</a>
-	                    <ul>
-	                        <li>
-		                        <span><i class="glyphicon glyphicon-leaf"></i> Grand Child</span> <a href="">Goes somewhere</a>
-	                        </li>
-	                    </ul>
-	                </li>
-	                <li>
-	                	<span><i class="glyphicon glyphicon-minus-sign"></i> Child</span> <a href="">Goes somewhere</a>
-	                    <ul>
-	                        <li>
-		                        <span><i class="glyphicon glyphicon-leaf"></i> Grand Child</span> <a href="">Goes somewhere</a>
-	                        </li>
-	                        <li>
-	                        	<span><i class="glyphicon glyphicon-minus-sign"></i> Grand Child</span> <a href="">Goes somewhere</a>
-	                            <ul>
-	                                <li>
-		                                <span><i class="glyphicon glyphicon-minus-sign"></i> Great Grand Child</span> <a href="">Goes somewhere</a>
-			                            <ul>
-			                                <li>
-				                                <span><i class="glyphicon glyphicon-leaf"></i> Great great Grand Child</span> <a href="">Goes somewhere</a>
-			                                </li>
-			                                <li>
-				                                <span><i class="glyphicon glyphicon-leaf"></i> Great great Grand Child</span> <a href="">Goes somewhere</a>
-			                                </li>
-			                             </ul>
-	                                </li>
-	                                <li>
-		                                <span><i class="glyphicon glyphicon-leaf"></i> Great Grand Child</span> <a href="">Goes somewhere</a>
-	                                </li>
-	                                <li>
-		                                <span><i class="glyphicon glyphicon-leaf"></i> Great Grand Child</span> <a href="">Goes somewhere</a>
-	                                </li>
-	                            </ul>
-	                        </li>
-	                        <li>
-		                        <span><i class="glyphicon glyphicon-leaf"></i> Grand Child</span> <a href="">Goes somewhere</a>
-	                        </li>
-	                    </ul>
-	                </li>
-	            </ul>
-	        </li>
-	        <li>
-	            <span><i class="glyphicon glyphicon-folder-open"></i> Parent2</span> <a href="">Goes somewhere</a>
-	            <ul>
-	                <li>
-	                	<span><i class="glyphicon glyphicon-leaf"></i> Child</span> <a href="">Goes somewhere</a>
-			        </li>
-			    </ul>
-	        </li>
+<body class="whitesmoke-body" id="body">
+	<div class="tree" style="height: 200px; overflow-y: auto;">
+	    <ul id="root" class="list-inline">
+	    <% for (Module module : Module.values()) { %>
+	    	<li>
+	    		<span><i class="glyphicon glyphicon-th-list"></i> <%=module.getDescription()%></span>
+	    		<ul>
+	    		<% for (Page p : Page.values()) { %>
+	    			<% if (p.getParent() != module) { continue; } %>
+	    			<li>
+	    				<span><%=p.getDescription()%></span>
+	    				<ul>
+	    				<% for (Action action : Action.values()) { %>
+	    					<% if (action.getParent() != p) { continue; } %>
+		    				<li>
+		    					<span><%=action.getDescription()%></span>
+		    				</li>
+	    				<% } %>
+	    				</ul>
+	    			</li>
+	    		<% } %>
+	    		</ul>
+	    	</li>
+	    <% } %>
 	    </ul>
 	</div>
 </body>

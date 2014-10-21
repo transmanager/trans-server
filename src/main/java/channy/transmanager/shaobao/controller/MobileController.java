@@ -305,6 +305,7 @@ public class MobileController {
 				data = payload;
 			}
 			target.setData(data.getBytes());
+			//target.setLastModified(new Date());
 		} finally {
 			session.getTransaction().commit();
 		}

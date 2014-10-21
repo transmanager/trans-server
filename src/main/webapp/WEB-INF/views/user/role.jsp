@@ -194,6 +194,10 @@
 			$(".hasDatePicker").addClass("form-control");
 			$(".tablesorter-filter").addClass("form-control");
 	});
+
+	function onAdd() {
+		showDialog("role/dialog", "添加角色", true, "dialog-lg");
+	}
 </script>
 
 </head>

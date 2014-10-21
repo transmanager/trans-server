@@ -74,4 +74,9 @@ public class RoleController {
 	public String role() {
 		return "user/role";
 	}
+	
+	@RequestMapping(value = "/role/dialog", method = RequestMethod.GET)
+	public String role_dialog() {
+		return "user/role-dialog";
+	}
 }
