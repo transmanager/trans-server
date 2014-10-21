@@ -475,7 +475,7 @@
 </script>
 
 </head>
-<body style="background-color: whitesmoke;">
+<body class="whitesmoke-body">
 	<div>
 		<table width="100%" id="table" cellspacing="0" cellpadding="0" class="tablesorter-dropbox">
 				<thead>

@@ -80,6 +80,7 @@ public class RoleService implements ServiceInterface<Role> {
 				obj.put("editable", true);
 			}
 			obj.put("name", role.getName());
+			obj.put("description", role.getDescription());
 			obj.put("dateCreated", format.format(role.getDateCreated()));
 			array.put(obj);
 		}
@@ -94,8 +95,23 @@ public class RoleService implements ServiceInterface<Role> {
 	}
 
 	public JSONObject select(int page, int pageSize, Map<String, Object> filter) throws ChannyException, JSONException {
-		// TODO Auto-generated method stub
-		return null;
+		QueryResult<Role> result = dao.query(page, pageSize, filter);
+		List<Role> list = result.getData();
+
+		JSONObject obj = new JSONObject();
+		obj.put("total", result.getMatch());
+
+		JSONArray array = new JSONArray();
+		for (Role role : list) {
+			JSONObject u = new JSONObject();
+			u.put("id", role.getId());
+			// u.put("employeeId", user.getEmployeeId());
+			u.put("text", role.getName());
+			array.put(u);
+		}
+		obj.put("data", array);
+
+		return obj;
 	}
 	
 	public Role getByName(String name) {
