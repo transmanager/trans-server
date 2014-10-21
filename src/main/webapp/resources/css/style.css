@@ -1,4 +1,8 @@
 ﻿@charset "utf-8";
+.whitesmoke-body {
+	background-color: whitesmoke;
+}
+
 .width-3 {
 	width: 3em;
 	text-align: right;
