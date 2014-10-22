@@ -311,6 +311,7 @@ public class MobileController {
 			return new JsonResponse(ErrorCode.OK).generate();
 		} catch (Exception e) {
 			session.getTransaction().rollback();
+			e.printStackTrace();
 			return new JsonResponse(ErrorCode.GENERIC_ERROR, e.getMessage()).generate();
 		}
 	}
