@@ -65,6 +65,7 @@ public class AccessControl implements Filter {
 			} else {
 				resp.getWriter().write(e.getLocalizedMessage());
 			}
+			System.out.println(e.getStackTrace());
 		}
 	}
 
