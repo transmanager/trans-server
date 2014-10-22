@@ -306,11 +306,13 @@ public class MobileController {
 			}
 			target.setData(data.getBytes());
 			//target.setLastModified(new Date());
-		} finally {
 			session.getTransaction().commit();
+			//orderService.update(order);
+			return new JsonResponse(ErrorCode.OK).generate();
+		} catch (Exception e) {
+			session.getTransaction().rollback();
+			return new JsonResponse(ErrorCode.GENERIC_ERROR, e.getMessage()).generate();
 		}
-		orderService.update(order);
-		return new JsonResponse(ErrorCode.OK).generate();
 	}
 
 	@RequestMapping(value = "/mobile/image/upload/complete", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
@@ -363,7 +365,7 @@ public class MobileController {
 				if (images.isEmpty()) {
 					order.setImage(null);
 				}
-				orderService.update(order);
+				//orderService.update(order);
 
 				return new JsonResponse("摘要值不匹配，请重新上传").generate();
 			}
