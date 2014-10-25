@@ -142,11 +142,11 @@ public class AccessControl implements Filter {
 
 	private void touch(HttpServletRequest request) {
 		UserService userService = new UserService();
-		@SuppressWarnings("unchecked")
-		Map<String, String> params = request.getParameterMap();
-		for (String key : params.keySet()) {
-			System.out.println(String.format("%s=%s", key, request.getParameter(key)));
-		}
+//		@SuppressWarnings("unchecked")
+//		Map<String, String> params = request.getParameterMap();
+//		for (String key : params.keySet()) {
+//			System.out.println(String.format("%s=%s", key, request.getParameter(key)));
+//		}
 		
 		String id = request.getParameter("employeeId");
 		if (id == null) {

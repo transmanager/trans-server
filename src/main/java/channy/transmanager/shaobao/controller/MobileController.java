@@ -1,5 +1,6 @@
 package channy.transmanager.shaobao.controller;
 
+import java.net.URLDecoder;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -32,6 +33,7 @@ import channy.transmanager.shaobao.service.OrderService;
 import channy.transmanager.shaobao.service.TokenService;
 import channy.transmanager.shaobao.service.user.DriverService;
 import channy.transmanager.shaobao.service.user.UserService;
+import channy.util.Base64Util;
 import channy.util.ChannyException;
 import channy.util.ErrorCode;
 import channy.util.HibernateUtil;
@@ -140,6 +142,9 @@ public class MobileController {
 		Session session = HibernateUtil.getCurrentSession();
 		session.beginTransaction();
 		User user = userService.getDetailByEmployeeId(employeeId, session);
+		if (user == null) {
+			return new JsonResponse(ErrorCode.USER_NOT_EXISTED).generate();
+		}
 		user.getRole().getName();
 		session.getTransaction().commit();
 		ErrorCode code = TokenDao.authenticate(user, token);
@@ -233,7 +238,7 @@ public class MobileController {
 			image.setLastModified(new Date());
 
 			images.add(image);
-			// order.setImage(images);
+			order.setImage(images);
 
 			// orderService.update(order);
 
@@ -290,6 +295,12 @@ public class MobileController {
 			if (target == null) {
 				return new JsonResponse("无效的上传ID").generate();
 			}
+			
+			if (payload == null) {
+				return new JsonResponse("无效的payload").generate();
+			}
+			//payload = URLDecoder.decode(payload, "UTF-8");
+			payload = Base64Util.unescape(payload);
 
 			String data = null;
 			if (target.getData() != null) {
@@ -375,7 +386,7 @@ public class MobileController {
 			session.getTransaction().commit();
 		}
 
-		orderService.update(order);
+		//orderService.update(order);
 
 		return new JsonResponse(ErrorCode.OK).generate();
 	}
