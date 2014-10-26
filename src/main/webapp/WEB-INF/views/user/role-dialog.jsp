@@ -49,21 +49,21 @@
 
 </head>
 <body class="whitesmoke-body" id="body">
-	<div class="tree" style="height: 200px; overflow-y: auto;">
-	    <ul id="root" class="list-inline">
+	<div class="tree" style="height: 400px; overflow-y: auto;">
+	    <ul id="root">
 	    <% for (Module module : Module.values()) { %>
 	    	<li>
-	    		<span><i class="glyphicon glyphicon-th-list"></i> <%=module.getDescription()%></span>
+	    		<span><input style="margin-right: 10px;" type="checkbox" id="<%=module.toString()%>"/><label for="<%=module.toString()%>"><i class="glyphicon glyphicon-th-list"></i> <%=module.getDescription()%></label></span>
 	    		<ul>
 	    		<% for (Page p : Page.values()) { %>
 	    			<% if (p.getParent() != module) { continue; } %>
 	    			<li>
-	    				<span><%=p.getDescription()%></span>
+	    				<span><input style="margin-right: 10px;" type="checkbox" id="<%=p.toString()%>"/><label for="<%=p.toString()%>"><%=p.getDescription()%></label></span>
 	    				<ul>
 	    				<% for (Action action : Action.values()) { %>
 	    					<% if (action.getParent() != p) { continue; } %>
 		    				<li>
-		    					<span><%=action.getDescription()%></span>
+		    					<span><input style="margin-right: 10px;" type="checkbox" id="<%=action.toString()%>"/><label for="<%=action.toString()%>"><%=action.getDescription()%></label></span>
 		    				</li>
 	    				<% } %>
 	    				</ul>

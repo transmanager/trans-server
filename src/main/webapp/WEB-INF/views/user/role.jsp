@@ -196,7 +196,7 @@
 	});
 
 	function onAdd() {
-		showDialog("role/dialog", "添加角色", true, "dialog-lg");
+		//showDialog("role/dialog", "添加角色", true, "dialog-lg");
 	}
 </script>
 

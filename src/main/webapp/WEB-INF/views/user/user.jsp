@@ -491,9 +491,9 @@
 								<button id="button_add" type="button" title="添加用户" onclick="onAdd()" class="btn btn-primary btn-xs f_r">
 									<span class="glyphicon glyphicon-plus-sign"></span>&nbsp;&nbsp;添加
 								</button>
-								<button id="button_add" type="button" title="添加用户" onclick="onMobileLogin()" class="btn btn-primary btn-xs f_r">
+								<!-- <button id="button_add" type="button" title="添加用户" onclick="onMobileLogin()" class="btn btn-primary btn-xs f_r">
 									<span class="glyphicon glyphicon-plus-sign"></span>&nbsp;&nbsp;test
-								</button>
+								</button> -->
 							</div>
 						</th>
 					</tr>
