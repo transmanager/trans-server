@@ -1,6 +1,5 @@
 package channy.transmanager.shaobao.controller;
 
-import java.net.URLDecoder;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -16,11 +15,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import channy.transmanager.shaobao.data.TokenDao;
 import channy.transmanager.shaobao.feature.Action;
@@ -41,7 +40,7 @@ import channy.util.JsonResponse;
 import channy.util.Sha1;
 import channy.util.StringUtil;
 
-@Controller
+@RestController
 public class MobileController {
 	private DriverService driverService = new DriverService();
 	private UserService userService = new UserService();
