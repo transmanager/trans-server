@@ -1,5 +1,6 @@
 package channy.transmanager.shaobao.data;
 
+import java.util.List;
 import java.util.Map;
 
 import channy.transmanager.shaobao.model.TollStation;
@@ -113,7 +114,11 @@ public class TollStationDao extends BaseDao<TollStation> {
 	}
 	
 	public TollStation getByName(String name) {
-		return (TollStation) super.getByField("name", name, TollStation.class);
+		List<TollStation> result = super.getByField("name", name, TollStation.class);
+		if (result.isEmpty()) {
+			return null;
+		}
+		return result.get(0); 
 	}
 	
 //	public static void main(String[] args) throws JSONException, ChannyException {
