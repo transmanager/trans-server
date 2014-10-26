@@ -49,7 +49,7 @@ if (tmp == null) {%>
 	<div><h3>无效的运单ID。</h3></div>
 <%} else {
 	long id = Long.parseLong(tmp);
-	Order order = service.getById(id);
+	Order order = service.getDetailById(id);
 	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");%>
 	<div>
 		<div>
@@ -183,6 +183,7 @@ if (tmp == null) {%>
 	<%if (order.getImage() != null) {%>
 	<div class="row" id="expensesImageContainer" style="width: 95%;">
 	<%for (Image image : order.getImage()) { %>
+	<% if (image.getData() == null) { continue; } %>
 	<%String base64 = new String(image.getData()); %>
 		<div class="col-xs-3">
 			<div class="thumbnail">

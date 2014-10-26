@@ -12,17 +12,17 @@ import channy.transmanager.shaobao.model.user.Driver;
 
 public class DriverService extends UserService {
 	private DriverDao dao = new DriverDao();
-	
+
 	public JSONObject sync(Driver driver) throws JSONException {
 		List<Order> orders = dao.sync(driver);
 		JSONObject data = new JSONObject();
-		
 
 		JSONArray array = new JSONArray();
 		for (Order order : orders) {
 			JSONObject obj = new JSONObject();
 			obj.put("id", order.getId());
 			obj.put("client", order.getClient().getName());
+			obj.put("truck", order.getTruck().getPlate());
 			obj.put("status", order.getStatus().getDesciption());
 
 			if (order.getdId() == null) {
@@ -47,7 +47,11 @@ public class DriverService extends UserService {
 		}
 
 		data.put("orders", array);
-		
+
 		return data;
+	}
+
+	public Driver getNextCandidate() {
+		return dao.scheduleDriver();
 	}
 }

@@ -58,7 +58,7 @@ public class UserController {
 		}
 
 		Map<String, Object> filter = new HashMap<String, Object>();
-		filter.put(HibernateUtil.ClassKey, User.class);
+		//filter.put(HibernateUtil.ClassKey, User.class);
 		String id = request.getParameter("employeeId");
 		if (id != null) {
 			filter.put("employeeId", id);
@@ -161,6 +161,6 @@ public class UserController {
 
 	@RequestMapping(value = "/user/dialog", method = RequestMethod.GET)
 	public String user_dialog() {
-		return "user/user_dialog";
+		return "user/user-dialog";
 	}
 }

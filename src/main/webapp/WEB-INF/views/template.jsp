@@ -16,6 +16,8 @@
 <!-- Optional theme -->
 <link rel="stylesheet" href="resources/css/bootstrap-theme.min.css" />
 
+<link rel="stylesheet" href="resources/css/style.css" />
+
 <!-- Latest compiled and minified JavaScript -->
 <script src="resources/js/bootstrap.min.js"></script>
 
@@ -26,7 +28,7 @@
 </script>
 
 </head>
-<body>
+<body class="whitesmoke-body">
 	
 </body>
 </html>

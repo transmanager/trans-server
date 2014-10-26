@@ -454,7 +454,7 @@
 			type : 'post',
 			data : {
 				action : '<%=Action.MobileSync%>',
-				employeeId: '10008',
+				employeeId: '10001',
 				token: token,
 			},
 			beforeSend : function() {
@@ -475,7 +475,7 @@
 </script>
 
 </head>
-<body style="background-color: whitesmoke;">
+<body class="whitesmoke-body">
 	<div>
 		<table width="100%" id="table" cellspacing="0" cellpadding="0" class="tablesorter-dropbox">
 				<thead>

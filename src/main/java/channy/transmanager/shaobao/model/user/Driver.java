@@ -1,5 +1,7 @@
 package channy.transmanager.shaobao.model.user;
 
+import java.util.Date;
+
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
@@ -20,11 +22,6 @@ public class Driver extends User {
 	@Transient
 	private static final long serialVersionUID = -3419112915334734620L;
 
-	public Driver() {
-		super();
-		//TODO: set its role
-	}
-
 	@OneToOne
 	@JoinColumn(name = "truck")
 	@Cascade(value = {CascadeType.SAVE_UPDATE})
@@ -35,6 +32,7 @@ public class Driver extends User {
 	private double oreDelivered;
 	private double weightCheated;
 	private double fuelUsed;
+	private Date lastOrder = new Date();
 	
 	public Truck getTruck() {
 		return truck;
@@ -77,5 +75,11 @@ public class Driver extends User {
 	}
 	public void setFuelUsed(double fuelUsed) {
 		this.fuelUsed = fuelUsed;
+	}
+	public Date getLastOrder() {
+		return lastOrder;
+	}
+	public void setLastOrder(Date lastOrder) {
+		this.lastOrder = lastOrder;
 	}
 }

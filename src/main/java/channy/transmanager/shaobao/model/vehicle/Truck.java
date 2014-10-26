@@ -34,12 +34,12 @@ public class Truck extends BaseEntity {
 	private int odometer = 0;
 	private Date lastOrder;
 	
-	@ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@Cascade(value = {CascadeType.SAVE_UPDATE})
 	@JoinColumn(name = "motorcade")
 	private Motorcade motorcade;
 	
-	@OneToOne(fetch = FetchType.EAGER)
+	@OneToOne(fetch = FetchType.LAZY)
 	@Cascade(value = {CascadeType.SAVE_UPDATE})
 	@JoinColumn(name = "driver")
 	private Driver driver;

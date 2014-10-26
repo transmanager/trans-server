@@ -5,7 +5,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Map;
 import java.util.StringTokenizer;
 
 import javax.servlet.Filter;
@@ -18,7 +17,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import channy.transmanager.shaobao.config.Configuration;
 import channy.transmanager.shaobao.data.TokenDao;
 import channy.transmanager.shaobao.model.Token;
 import channy.transmanager.shaobao.model.user.User;
@@ -65,12 +63,13 @@ public class AccessControl implements Filter {
 			} else {
 				resp.getWriter().write(e.getLocalizedMessage());
 			}
+			e.printStackTrace();
 		}
 	}
 
 	public void init(FilterConfig config) throws ServletException {
-		Configuration.context = config.getInitParameter("context");
-		Configuration.update();
+		//Configuration.context = config.getInitParameter("context");
+		//Configuration.update();
 
 		String urls = config.getInitParameter("login exceptions");
 		StringTokenizer token = new StringTokenizer(urls, ",");
@@ -141,11 +140,11 @@ public class AccessControl implements Filter {
 
 	private void touch(HttpServletRequest request) {
 		UserService userService = new UserService();
-		@SuppressWarnings("unchecked")
-		Map<String, String> params = request.getParameterMap();
-		for (String key : params.keySet()) {
-			System.out.println(String.format("%s=%s", key, request.getParameter(key)));
-		}
+//		@SuppressWarnings("unchecked")
+//		Map<String, String> params = request.getParameterMap();
+//		for (String key : params.keySet()) {
+//			System.out.println(String.format("%s=%s", key, request.getParameter(key)));
+//		}
 		
 		String id = request.getParameter("employeeId");
 		if (id == null) {

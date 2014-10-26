@@ -10,15 +10,16 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.hibernate.Session;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import channy.transmanager.shaobao.data.TokenDao;
 import channy.transmanager.shaobao.feature.Action;
@@ -31,13 +32,15 @@ import channy.transmanager.shaobao.service.OrderService;
 import channy.transmanager.shaobao.service.TokenService;
 import channy.transmanager.shaobao.service.user.DriverService;
 import channy.transmanager.shaobao.service.user.UserService;
+import channy.util.Base64Util;
 import channy.util.ChannyException;
 import channy.util.ErrorCode;
+import channy.util.HibernateUtil;
 import channy.util.JsonResponse;
 import channy.util.Sha1;
 import channy.util.StringUtil;
 
-@Controller
+@RestController
 public class MobileController {
 	private DriverService driverService = new DriverService();
 	private UserService userService = new UserService();
@@ -58,7 +61,11 @@ public class MobileController {
 			return new JsonResponse(code).generate();
 		}
 
-		User user = userService.getByEmployeeId(employeeId);
+		Session session = HibernateUtil.getCurrentSession();
+		session.beginTransaction();
+		User user = userService.getDetailByEmployeeId(employeeId, session);
+		user.getRole().getName();
+		session.getTransaction().commit();
 		String uuid = UUID.randomUUID().toString();
 		if (TokenDao.exists(user)) {
 			Token token = TokenDao.getByUser(user);
@@ -102,29 +109,43 @@ public class MobileController {
 	@RequestMapping(value = "/mobile/queryStatus", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
 	public @ResponseBody String queryStatus(@RequestParam("action") String action, @RequestParam("employeeId") String employeeId,
 			@RequestParam("token") String token, HttpServletRequest request) throws JSONException {
-		User user = userService.getByEmployeeId(employeeId);
-		ErrorCode code = TokenDao.authenticate(user, token);
-		if (!code.isOK()) {
-			return new JsonResponse(code).generate();
-		}
 
-		if (Action.valueOf(Action.class, action) != Action.MobileQueryStatus) {
-			return new JsonResponse(ErrorCode.BAD_REQUEST_CODE).generate();
-		}
+		Session session = HibernateUtil.getCurrentSession();
+		session.beginTransaction();
+		try {
+			User user = userService.getDetailByEmployeeId(employeeId, session);
+			ErrorCode code = TokenDao.authenticate(user, token);
+			if (!code.isOK()) {
+				return new JsonResponse(code).generate();
+			}
 
-		JSONObject data = new JSONObject();
-		if (user.getRole().getName().contains("驾驶员")) {
-			Driver driver = (Driver) user;
-			data.put("cargoDelivered", driver.getCargoDelivered());
-		}
+			if (Action.valueOf(Action.class, action) != Action.MobileQueryStatus) {
+				return new JsonResponse(ErrorCode.BAD_REQUEST_CODE).generate();
+			}
 
-		return new JsonResponse(ErrorCode.OK, data).generate();
+			JSONObject data = new JSONObject();
+			if (user.getRole().getName().contains("驾驶员")) {
+				Driver driver = (Driver) user;
+				data.put("cargoDelivered", driver.getCargoDelivered());
+			}
+
+			return new JsonResponse(ErrorCode.OK, data).generate();
+		} finally {
+			session.getTransaction().commit();
+		}
 	}
 
 	@RequestMapping(value = "/mobile/sync", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
 	public @ResponseBody String sync(@RequestParam("action") String action, @RequestParam("employeeId") String employeeId,
 			@RequestParam("token") String token, HttpServletRequest request) throws JSONException, ChannyException {
-		User user = userService.getByEmployeeId(employeeId);
+		Session session = HibernateUtil.getCurrentSession();
+		session.beginTransaction();
+		User user = userService.getDetailByEmployeeId(employeeId, session);
+		if (user == null) {
+			return new JsonResponse(ErrorCode.USER_NOT_EXISTED).generate();
+		}
+		user.getRole().getName();
+		session.getTransaction().commit();
 		ErrorCode code = TokenDao.authenticate(user, token);
 		if (!code.isOK()) {
 			return new JsonResponse(code).generate();
@@ -138,14 +159,8 @@ public class MobileController {
 		if (user.getRole().getName().contains("驾驶员")) {
 			Driver driver = (Driver) user;
 			data = driverService.sync(driver);
-			// Map<String, Object> filter = new HashMap<String, Object>();
-			// filter.put("driver", driver);
-			// //filter.put("status", OrderStatus.New);
-			// data = orderService.query(-1, -1, filter);
-			// data.put("orders", array);
 		}
 
-		System.out.println(new JsonResponse(ErrorCode.OK, data).generate());
 		return new JsonResponse(ErrorCode.OK, data).generate();
 	}
 
@@ -191,40 +206,47 @@ public class MobileController {
 			return new JsonResponse(ErrorCode.BAD_REQUEST_CODE).generate();
 		}
 
-		Order order = orderService.getById(Long.parseLong(orderId));
-		if (order == null) {
-			return new JsonResponse(String.format("运单%s不存在", orderId)).generate();
+		Session session = HibernateUtil.getCurrentSession();
+		session.beginTransaction();
+		Order order = orderService.getDetailById(Long.parseLong(orderId), session);
+		List<Image> images = null;
+		try {
+			if (order == null) {
+				return new JsonResponse(String.format("运单%s不存在", orderId)).generate();
+			}
+
+			if (!order.getDriver().getEmployeeId().equals(employeeId)) {
+				return new JsonResponse(String.format("不能修改别人的运单", orderId)).generate();
+			}
+
+			images = order.getImage();
+			orderService.removeExpired(images);
+			if (images == null) {
+				images = new ArrayList<Image>();
+			}
+
+			String uploadId = UUID.randomUUID().toString();
+			Image image = new Image();
+			SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			image.setAuthor(order.getDriver());
+			image.setDescription(description);
+			image.setLongitude(Double.parseDouble(x));
+			image.setLatitude(Double.parseDouble(y));
+			image.setDateTaken(format.parse(dateTaken));
+			image.setUploadId(uploadId);
+			image.setLastModified(new Date());
+
+			images.add(image);
+			order.setImage(images);
+
+			// orderService.update(order);
+
+			JSONObject data = new JSONObject();
+			data.put("uploadId", uploadId);
+			return new JsonResponse(ErrorCode.OK, data).generate();
+		} finally {
+			session.getTransaction().commit();
 		}
-
-		if (!order.getDriver().getEmployeeId().equals(employeeId)) {
-			return new JsonResponse(String.format("不能修改别人的运单", orderId)).generate();
-		}
-
-		List<Image> images = order.getImage();
-		orderService.removeExpired(images);
-		if (images == null) {
-			images = new ArrayList<Image>();
-		}
-
-		String uploadId = UUID.randomUUID().toString();
-		Image image = new Image();
-		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		image.setAuthor(order.getDriver());
-		image.setDescription(description);
-		image.setLongitude(Double.parseDouble(x));
-		image.setLatitude(Double.parseDouble(y));
-		image.setDateTaken(format.parse(dateTaken));
-		image.setUploadId(uploadId);
-		image.setLastModified(new Date());
-
-		images.add(image);
-		order.setImage(images);
-		orderService.update(order);
-
-		JSONObject data = new JSONObject();
-		data.put("uploadId", uploadId);
-
-		return new JsonResponse(ErrorCode.OK, data).generate();
 	}
 
 	@RequestMapping(value = "/mobile/image/upload/parts", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
@@ -240,49 +262,68 @@ public class MobileController {
 			return new JsonResponse(ErrorCode.BAD_REQUEST_CODE).generate();
 		}
 
-		Order order = orderService.getById(Long.parseLong(orderId));
+		// Order order = orderService.getById(Long.parseLong(orderId));
+		Session session = HibernateUtil.getCurrentSession();
+		session.beginTransaction();
+		Order order = orderService.getDetailById(Long.parseLong(orderId), session);
 		if (order == null) {
+			session.getTransaction().commit();
 			return new JsonResponse(String.format("运单%d不存在", orderId)).generate();
 		}
 
-		if (!order.getDriver().getEmployeeId().equals(employeeId)) {
-			return new JsonResponse("不能修改别人的运单").generate();
-		}
-
-		List<Image> images = order.getImage();
-		if (images == null) {
-			return new JsonResponse("无效的请求，请先初始化上传进程").generate();
-		}
-		orderService.removeExpired(images);
-
-		Image target = null;
-		for (Image image : images) {
-			if (image.getUploadId().equals(uploadId)) {
-				target = image;
-				break;
-			}
-		}
-
-		if (target == null) {
-			return new JsonResponse("无效的上传ID").generate();
-		}
-
-		String data = null;
-		if (target.getData() != null) {
-			data = new String(target.getData());
-			int os = Integer.parseInt(offset);
-			if (data.length() < os) {
-				return new JsonResponse("无效的偏移量").generate();
+		List<Image> images = null;
+		try {
+			if (!order.getDriver().getEmployeeId().equals(employeeId)) {
+				return new JsonResponse("不能修改别人的运单").generate();
 			}
 
-			data = data.substring(0, os);
-			data += payload;
-		} else {
-			data = payload;
+			images = order.getImage();
+			if (images == null) {
+				return new JsonResponse("无效的请求，请先初始化上传进程").generate();
+			}
+			orderService.removeExpired(images);
+
+			Image target = null;
+			for (Image image : images) {
+				if (image.getUploadId().equals(uploadId)) {
+					target = image;
+					break;
+				}
+			}
+
+			if (target == null) {
+				return new JsonResponse("无效的上传ID").generate();
+			}
+			
+			if (payload == null) {
+				return new JsonResponse("无效的payload").generate();
+			}
+			//payload = URLDecoder.decode(payload, "UTF-8");
+			payload = Base64Util.unescape(payload);
+
+			String data = null;
+			if (target.getData() != null) {
+				data = new String(target.getData());
+				int os = Integer.parseInt(offset);
+				if (data.length() < os) {
+					return new JsonResponse("无效的偏移量").generate();
+				}
+
+				data = data.substring(0, os);
+				data += payload;
+			} else {
+				data = payload;
+			}
+			target.setData(data.getBytes());
+			//target.setLastModified(new Date());
+			session.getTransaction().commit();
+			//orderService.update(order);
+			return new JsonResponse(ErrorCode.OK).generate();
+		} catch (Exception e) {
+			session.getTransaction().rollback();
+			e.printStackTrace();
+			return new JsonResponse(ErrorCode.GENERIC_ERROR, e.getMessage()).generate();
 		}
-		target.setData(data.getBytes());
-		orderService.update(order);
-		return new JsonResponse(ErrorCode.OK).generate();
 	}
 
 	@RequestMapping(value = "/mobile/image/upload/complete", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
@@ -298,46 +339,53 @@ public class MobileController {
 			return new JsonResponse(ErrorCode.BAD_REQUEST_CODE).generate();
 		}
 
-		Order order = orderService.getById(Long.parseLong(orderId));
-		if (order == null) {
-			return new JsonResponse(String.format("运单%d不存在", orderId)).generate();
-		}
-
-		if (!order.getDriver().getEmployeeId().equals(employeeId)) {
-			return new JsonResponse("不能修改别人的运单").generate();
-		}
-
-		List<Image> images = order.getImage();
-		if (images == null) {
-			return new JsonResponse("无效的请求，请先初始化上传进程").generate();
-		}
-		orderService.removeExpired(images);
-
-		Image target = null;
-		for (Image image : images) {
-			if (image.getUploadId().equals(uploadId)) {
-				target = image;
-				break;
+		Session session = HibernateUtil.getCurrentSession();
+		session.beginTransaction();
+		Order order = orderService.getDetailById(Long.parseLong(orderId), session);
+		List<Image> images = null;
+		try {
+			if (order == null) {
+				return new JsonResponse(String.format("运单%d不存在", orderId)).generate();
 			}
-		}
 
-		if (target == null) {
-			return new JsonResponse("无效的上传ID").generate();
-		}
-
-		String localMd5 = StringUtil.md5(new String(target.getData()));
-		if (!localMd5.equals(md5)) {
-			order.getImage().remove(target);
-			if (images.isEmpty()) {
-				order.setImage(null);
+			if (!order.getDriver().getEmployeeId().equals(employeeId)) {
+				return new JsonResponse("不能修改别人的运单").generate();
 			}
-			orderService.update(order);
 
-			return new JsonResponse("摘要值不匹配，请重新上传").generate();
+			images = order.getImage();
+			if (images == null) {
+				return new JsonResponse("无效的请求，请先初始化上传进程").generate();
+			}
+			orderService.removeExpired(images);
+
+			Image target = null;
+			for (Image image : images) {
+				if (image.getUploadId().equals(uploadId)) {
+					target = image;
+					break;
+				}
+			}
+
+			if (target == null) {
+				return new JsonResponse("无效的上传ID").generate();
+			}
+
+			String localMd5 = StringUtil.md5(new String(target.getData()));
+			if (!localMd5.equals(md5)) {
+				order.getImage().remove(target);
+				if (images.isEmpty()) {
+					order.setImage(null);
+				}
+				//orderService.update(order);
+
+				return new JsonResponse("摘要值不匹配，请重新上传").generate();
+			}
+			target.setReady(true);
+		} finally {
+			session.getTransaction().commit();
 		}
 
-		target.setReady(true);
-		orderService.update(order);
+		//orderService.update(order);
 
 		return new JsonResponse(ErrorCode.OK).generate();
 	}

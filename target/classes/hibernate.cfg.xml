@@ -9,6 +9,7 @@
 		<property name="hibernate.connection.username">transmanager</property>
 		<property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
 		<property name="hibernate.current_session_context_class">thread</property>
+		<!-- <property name="show_sql">true</property> -->
 
 		<property name="connection.provider_class">org.hibernate.connection.C3P0ConnectionProvider</property>
 		<property name="hibernate.hbm2ddl.auto">update</property>

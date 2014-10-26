@@ -45,7 +45,7 @@ public class Order extends BaseEntity {
 	
 	private String cId; // Use ',' to separate multiple instances.
 	
-	@OneToMany(fetch = FetchType.EAGER)
+	@OneToMany(fetch = FetchType.LAZY)
 	@Cascade(CascadeType.SAVE_UPDATE)
 	@JoinColumn(name = "order_id")
 	private List<Image> image;
@@ -53,11 +53,12 @@ public class Order extends BaseEntity {
 	private String oId;
 
 	@OneToOne
+	@Cascade(value = {CascadeType.SAVE_UPDATE})
 	@JoinColumn(name = "scheduler")
 	private User scheduler;
 	
 	@OneToOne
-	//@Cascade(value = {CascadeType.SAVE_UPDATE})
+	@Cascade(value = {CascadeType.SAVE_UPDATE})
 	@JoinColumn(name = "truck")
 	private Truck truck;
 	
@@ -66,30 +67,35 @@ public class Order extends BaseEntity {
 	
 	@OneToOne
 	@JoinColumn(name = "client")
+	@Cascade(value = {CascadeType.SAVE_UPDATE})
 	private Client client;
 	
 	@OneToOne
-	//@Cascade(value = {CascadeType.SAVE_UPDATE})
+	@Cascade(value = {CascadeType.SAVE_UPDATE})
 	@JoinColumn(name = "driver")
 	private Driver driver;
 
 	@OneToOne
 	@JoinColumn(name = "cargoSource")
+	@Cascade(value = {CascadeType.SAVE_UPDATE})
 	private Place cargoSource;
 	
 	@OneToOne
 	@JoinColumn(name = "cargoDestination")
+	@Cascade(value = {CascadeType.SAVE_UPDATE})
 	private Place cargoDestination;
 	
 	@OneToOne
 	@JoinColumn(name = "oreSource")
+	@Cascade(value = {CascadeType.SAVE_UPDATE})
 	private Place oreSource;
 	
 	@OneToOne
 	@JoinColumn(name = "oreDestination")
+	@Cascade(value = {CascadeType.SAVE_UPDATE})
 	private Place oreDestination;
 	
-	@OneToMany(fetch = FetchType.EAGER)
+	@OneToMany(fetch = FetchType.LAZY)
 	@Cascade(value = {CascadeType.SAVE_UPDATE})
 	@JoinColumn(name = "order_id")
 	private List<Cargo> cargo;
@@ -102,6 +108,7 @@ public class Order extends BaseEntity {
 
 	@OneToOne
 	@JoinColumn(name = "ore")
+	@Cascade(value = {CascadeType.SAVE_UPDATE})
 	private Ore ore;
 	private double oreWeight;
 	private double paidOreWeight;
@@ -114,12 +121,12 @@ public class Order extends BaseEntity {
 	private Date dateReturn;
 	private Date dateReturned;
 	
-	@OneToMany(fetch = FetchType.EAGER)
+	@OneToMany(fetch = FetchType.LAZY)
 	@Cascade(value = {CascadeType.SAVE_UPDATE})
 	@JoinColumn(name = "order_id")
 	private List<Expenses> expenses;
 	
-	@OneToMany(fetch = FetchType.EAGER)
+	@OneToMany(fetch = FetchType.LAZY)
 	@Cascade(value = {CascadeType.SAVE_UPDATE})
 	@JoinColumn(name = "order_id")
 	private List<Abnormality> abnormalities;
@@ -151,7 +158,7 @@ public class Order extends BaseEntity {
 	private double distance;
 	private double fuelUsed;
 	
-	@OneToMany(fetch = FetchType.EAGER)
+	@OneToMany(fetch = FetchType.LAZY)
 	@Cascade(value = {CascadeType.SAVE_UPDATE})
 	@JoinColumn(name = "order_id")
 	private List<Toll> tolls;

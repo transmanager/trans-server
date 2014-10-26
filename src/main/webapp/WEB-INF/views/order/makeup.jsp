@@ -70,7 +70,7 @@ String dialogId = request.getParameter("dialogId");
 	            results: function (result, page) {
 	                var more = (page * 10) < result.data.total; // whether or not there are more results available
 	                // notice we return the value of more so Select2 knows if more results can be loaded
-	                return {results: result.data.results, more: more};
+	                return {results: result.data.data, more: more};
 	            }
 	        },
             multiple: false,
@@ -93,7 +93,7 @@ String dialogId = request.getParameter("dialogId");
 	            results: function (result, page) {
 	                var more = (page * 10) < result.data.total; // whether or not there are more results available
 	                // notice we return the value of more so Select2 knows if more results can be loaded
-	                return {results: result.data.results, more: more};
+	                return {results: result.data.data, more: more};
 	            }
 	        },
             multiple: false,
@@ -102,7 +102,7 @@ String dialogId = request.getParameter("dialogId");
 		$("#driver").select2 ({
 	        minimumInputLength: 0,
 	        ajax: {
-	            url: "../user/queryselect",
+	            url: "../user/select",
 	            type: "post",
 	            dataType: 'json',
 	            data: function (term, page) {
@@ -117,7 +117,7 @@ String dialogId = request.getParameter("dialogId");
 	            results: function (result, page) {
 	                var more = (page * 10) < result.data.total; // whether or not there are more results available
 	                // notice we return the value of more so Select2 knows if more results can be loaded
-	                return {results: result.data.results, more: more};
+	                return {results: result.data.data, more: more};
 	            }
 	        },
             multiple: false,
@@ -126,7 +126,7 @@ String dialogId = request.getParameter("dialogId");
 		$("#client").select2 ({
 	        minimumInputLength: 0,
 	        ajax: {
-	            url: "../user/queryselect",
+	            url: "../user/select",
 	            type: "post",
 	            dataType: 'json',
 	            data: function (term, page) {
@@ -141,7 +141,7 @@ String dialogId = request.getParameter("dialogId");
 	            results: function (result, page) {
 	                var more = (page * 10) < result.data.total; // whether or not there are more results available
 	                // notice we return the value of more so Select2 knows if more results can be loaded
-	                return {results: result.data.results, more: more};
+	                return {results: result.data.data, more: more};
 	            }
 	        },
 	        createSearchChoice: function(term, data) {
@@ -172,7 +172,7 @@ String dialogId = request.getParameter("dialogId");
 	            results: function (result, page) {
 	                var more = (page * 10) < result.data.total; // whether or not there are more results available
 	                // notice we return the value of more so Select2 knows if more results can be loaded
-	                return {results: result.data.results, more: more};
+	                return {results: result.data.data, more: more};
 	            }
 	        },
 	        createSearchChoice: function(term, data) {
@@ -203,7 +203,7 @@ String dialogId = request.getParameter("dialogId");
 	            results: function (result, page) {
 	                var more = (page * 10) < result.data.total; // whether or not there are more results available
 	                // notice we return the value of more so Select2 knows if more results can be loaded
-	                return {results: result.data.results, more: more};
+	                return {results: result.data.data, more: more};
 	            }
 	        },
 	        createSearchChoice: function(term, data) {
@@ -234,7 +234,7 @@ String dialogId = request.getParameter("dialogId");
 	            results: function (result, page) {
 	                var more = (page * 10) < result.data.total; // whether or not there are more results available
 	                // notice we return the value of more so Select2 knows if more results can be loaded
-	                return {results: result.data.results, more: more};
+	                return {results: result.data.data, more: more};
 	            }
 	        },
 	        createSearchChoice: function(term, data) {
@@ -264,7 +264,7 @@ String dialogId = request.getParameter("dialogId");
 	            results: function (result, page) {
 	                var more = (page * 10) < result.data.total; // whether or not there are more results available
 	                // notice we return the value of more so Select2 knows if more results can be loaded
-	                return {results: result.data.results, more: more};
+	                return {results: result.data.data, more: more};
 	            }
 	        },
 	        createSearchChoice: function(term, data) {
@@ -715,7 +715,7 @@ String dialogId = request.getParameter("dialogId");
 	            results: function (result, page) {
 	                var more = (page * 10) < result.data.total; // whether or not there are more results available
 	                // notice we return the value of more so Select2 knows if more results can be loaded
-	                return {results: result.data.results, more: more};
+	                return {results: result.data.data, more: more};
 	            }
 	        },
 	        createSearchChoice: function(term, data) {
@@ -795,7 +795,7 @@ String dialogId = request.getParameter("dialogId");
 	            results: function (result, page) {
 	                var more = (page * 10) < result.data.total; // whether or not there are more results available
 	                // notice we return the value of more so Select2 knows if more results can be loaded
-	                return {results: result.data.results, more: more};
+	                return {results: result.data.data, more: more};
 	            }
 	        },
 	        createSearchChoice: function(term, data) {
@@ -888,7 +888,7 @@ String dialogId = request.getParameter("dialogId");
 	            results: function (result, page) {
 	                var more = (page * 10) < result.data.total; // whether or not there are more results available
 	                // notice we return the value of more so Select2 knows if more results can be loaded
-	                return {results: result.data.results, more: more};
+	                return {results: result.data.data, more: more};
 	            }
 	        },
 	        createSearchChoice: function(term, data) {

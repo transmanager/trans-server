@@ -11,6 +11,7 @@ import channy.transmanager.shaobao.data.QueryResult;
 import channy.transmanager.shaobao.model.order.Order;
 import channy.transmanager.shaobao.model.order.OrderStatus;
 import channy.transmanager.shaobao.model.user.Driver;
+import channy.transmanager.shaobao.model.user.UserStatus;
 import channy.util.ChannyException;
 import channy.util.HibernateUtil;
 
@@ -185,23 +186,6 @@ public class DriverDao extends BaseDao<Driver> {
 	public List<Order> sync(Driver driver) {
 		String hql = String
 				.format("from Order order where order.driver = :driver and order.status != :s0 and order.status != :s1 and order.status != :s2 and order.status != :s3");
-		// Session session = HibernateUtil.openSession();
-		// try {
-		// session.beginTransaction();
-		// Query query = session.createQuery(hql);
-		// query.setParameter("driver", driver);
-		// query.setParameter("s0", OrderStatus.ExpensesVerificationPending);
-		// query.setParameter("s1", OrderStatus.CargoVerificationPending);
-		// query.setParameter("s2", OrderStatus.ClearancePending);
-		// query.setParameter("s3", OrderStatus.Closed);
-		// @SuppressWarnings("unchecked")
-		// List<Order> result = query.list();
-		// session.getTransaction().commit();
-		//
-		// return result;
-		// } finally {
-		// session.close();
-		// }
 
 		Session session = HibernateUtil.getCurrentSession();
 		session.beginTransaction();
@@ -213,8 +197,42 @@ public class DriverDao extends BaseDao<Driver> {
 		query.setParameter("s3", OrderStatus.Closed);
 		@SuppressWarnings("unchecked")
 		List<Order> result = query.list();
+		for (Order order : result) {
+			order.getDriver().getName();
+			order.getTruck().getPlate();
+			order.getClient().getName();
+		}
 		session.getTransaction().commit();
 
 		return result;
+	}
+	
+	public List<Driver> getAvailableDrivers() {
+		Session session = HibernateUtil.getCurrentSession();
+		session.beginTransaction();
+		Query query = session.createQuery("from Driver driver where driver.status = :status order by driver.lastOrder desc");
+		query.setParameter("status", UserStatus.Idle);
+		@SuppressWarnings("unchecked")
+		List<Driver> result = query.list();
+		session.getTransaction().commit();
+		return result;
+	}
+	
+	public Driver scheduleDriver() {
+		Session session = HibernateUtil.getCurrentSession();
+		session.beginTransaction();
+		Query query = session.createQuery("from Driver driver where driver.status = :status order by driver.lastOrder desc");
+		query.setParameter("status", UserStatus.Idle);
+		query.setFirstResult(0);
+		query.setMaxResults(1);
+		@SuppressWarnings("unchecked")
+		List<Driver> result = query.list();
+		session.getTransaction().commit();
+		
+		if (result.isEmpty()) {
+			return null;
+		}
+		
+		return result.get(0);
 	}
 }

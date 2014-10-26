@@ -1,5 +1,6 @@
 package channy.transmanager.shaobao.data;
 
+import java.util.List;
 import java.util.Map;
 
 import channy.transmanager.shaobao.model.Place;
@@ -125,6 +126,11 @@ public class PlaceDao extends BaseDao<Place> {
 	}
 	
 	public Place getByName(String name) {
-		return (Place) super.getByField("name", name, Place.class);
+		List<Place> places = super.getByField("name", name, Place.class);
+		if (places.isEmpty()) {
+			return null;
+		}
+		
+		return places.get(0);
 	}
 }
