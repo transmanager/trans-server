@@ -5,7 +5,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Map;
 import java.util.StringTokenizer;
 
 import javax.servlet.Filter;
@@ -18,7 +17,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import channy.transmanager.shaobao.config.Configuration;
 import channy.transmanager.shaobao.data.TokenDao;
 import channy.transmanager.shaobao.model.Token;
 import channy.transmanager.shaobao.model.user.User;
@@ -70,8 +68,8 @@ public class AccessControl implements Filter {
 	}
 
 	public void init(FilterConfig config) throws ServletException {
-		Configuration.context = config.getInitParameter("context");
-		Configuration.update();
+		//Configuration.context = config.getInitParameter("context");
+		//Configuration.update();
 
 		String urls = config.getInitParameter("login exceptions");
 		StringTokenizer token = new StringTokenizer(urls, ",");
