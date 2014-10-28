@@ -7,7 +7,6 @@ import java.util.List;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
-import channy.transmanager.shaobao.data.user.UserDao;
 import channy.transmanager.shaobao.model.Token;
 import channy.transmanager.shaobao.model.user.User;
 import channy.util.ChannyException;
@@ -39,16 +38,19 @@ public class TokenDao {
 		// }
 
 		Session session = HibernateUtil.getCurrentSession();
-		session.beginTransaction();
-		Query query = session.createQuery("from Token token where token.user = :user");
-		query.setParameter("user", user);
-		@SuppressWarnings("unchecked")
-		List<Token> result = query.list();
-		session.getTransaction().commit();
-		if (result.size() == 0) {
-			return null;
-		} else {
-			return result.get(0);
+		try {
+			session.beginTransaction();
+			Query query = session.createQuery("from Token token where token.user = :user");
+			query.setParameter("user", user);
+			@SuppressWarnings("unchecked")
+			List<Token> result = query.list();
+			if (result.size() == 0) {
+				return null;
+			} else {
+				return result.get(0);
+			}
+		} finally {
+			session.getTransaction().commit();
 		}
 	}
 

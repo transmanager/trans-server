@@ -278,35 +278,41 @@ public class TruckDao extends BaseDao<Truck> {
 
 	public List<Truck> getAvailableTrucks() {
 		Session session = HibernateUtil.getCurrentSession();
-		session.beginTransaction();
-		Query query = session.createQuery("from Truck truck where truck.status = :status order by truck.lastOrder desc");
-		query.setParameter("status", TruckStatus.Idle);
-		@SuppressWarnings("unchecked")
-		List<Truck> result = query.list();
-		for (Truck truck : result) {
-			truck.getMotorcade().getName();
+		try {
+			session.beginTransaction();
+			Query query = session.createQuery("from Truck truck where truck.status = :status order by truck.lastOrder desc");
+			query.setParameter("status", TruckStatus.Idle);
+			@SuppressWarnings("unchecked")
+			List<Truck> result = query.list();
+			for (Truck truck : result) {
+				truck.getMotorcade().getName();
+			}
+			return result;
+		} finally {
+			session.getTransaction().commit();
 		}
-		session.getTransaction().commit();
-		return result;
 	}
-	
+
 	public Truck scheduleTruck() {
 		Session session = HibernateUtil.getCurrentSession();
-		session.beginTransaction();
-		Query query = session.createQuery("from Truck truck where truck.status = :status order by truck.lastOrder desc");
-		query.setParameter("status", TruckStatus.Idle);
-		query.setFirstResult(0);
-		query.setMaxResults(1);
-		@SuppressWarnings("unchecked")
-		List<Truck> result = query.list();
-		for (Truck truck : result) {
-			truck.getMotorcade().getName();
+		try {
+			session.beginTransaction();
+			Query query = session.createQuery("from Truck truck where truck.status = :status order by truck.lastOrder desc");
+			query.setParameter("status", TruckStatus.Idle);
+			query.setFirstResult(0);
+			query.setMaxResults(1);
+			@SuppressWarnings("unchecked")
+			List<Truck> result = query.list();
+			for (Truck truck : result) {
+				truck.getMotorcade().getName();
+			}
+			if (result.isEmpty()) {
+				return null;
+			}
+
+			return result.get(0);
+		} finally {
+			session.getTransaction().commit();
 		}
-		session.getTransaction().commit();
-		if (result.isEmpty()) {
-			return null;
-		}
-		
-		return result.get(0);
 	}
 }

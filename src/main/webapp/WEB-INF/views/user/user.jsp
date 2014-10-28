@@ -284,9 +284,9 @@
 
 				var token = response.data.token;
 
-				//sync(token);
+				sync(token);
 				//uploadImage(token);
-				multipleUpload(token);
+				//multipleUpload(token);
 			},
 
 			error : function (jqXHR, textStatus, errorThrown) {

@@ -61,11 +61,18 @@ public class MobileController {
 			return new JsonResponse(code).generate();
 		}
 
+		User user = null;
 		Session session = HibernateUtil.getCurrentSession();
-		session.beginTransaction();
-		User user = userService.getDetailByEmployeeId(employeeId, session);
-		user.getRole().getName();
-		session.getTransaction().commit();
+		try {
+			session.beginTransaction();
+			user = userService.getDetailByEmployeeId(employeeId, session);
+			if (user == null) {
+				return new JsonResponse(ErrorCode.USER_NOT_EXISTED).generate();
+			}
+			user.getRole().getName();
+		} finally {
+			session.getTransaction().commit();
+		}
 		String uuid = UUID.randomUUID().toString();
 		if (TokenDao.exists(user)) {
 			Token token = TokenDao.getByUser(user);
@@ -111,8 +118,9 @@ public class MobileController {
 			@RequestParam("token") String token, HttpServletRequest request) throws JSONException {
 
 		Session session = HibernateUtil.getCurrentSession();
-		session.beginTransaction();
 		try {
+			session.beginTransaction();
+
 			User user = userService.getDetailByEmployeeId(employeeId, session);
 			ErrorCode code = TokenDao.authenticate(user, token);
 			if (!code.isOK()) {
@@ -139,13 +147,18 @@ public class MobileController {
 	public @ResponseBody String sync(@RequestParam("action") String action, @RequestParam("employeeId") String employeeId,
 			@RequestParam("token") String token, HttpServletRequest request) throws JSONException, ChannyException {
 		Session session = HibernateUtil.getCurrentSession();
-		session.beginTransaction();
-		User user = userService.getDetailByEmployeeId(employeeId, session);
-		if (user == null) {
-			return new JsonResponse(ErrorCode.USER_NOT_EXISTED).generate();
+		User user = null;
+		try {
+			session.beginTransaction();
+			user = userService.getDetailByEmployeeId(employeeId, session);
+			if (user == null) {
+				return new JsonResponse(ErrorCode.USER_NOT_EXISTED).generate();
+			}
+			user.getRole().getName();
+		} finally {
+			session.getTransaction().commit();
 		}
-		user.getRole().getName();
-		session.getTransaction().commit();
+		
 		ErrorCode code = TokenDao.authenticate(user, token);
 		if (!code.isOK()) {
 			return new JsonResponse(code).generate();
@@ -207,10 +220,11 @@ public class MobileController {
 		}
 
 		Session session = HibernateUtil.getCurrentSession();
-		session.beginTransaction();
-		Order order = orderService.getDetailById(Long.parseLong(orderId), session);
-		List<Image> images = null;
 		try {
+			session.beginTransaction();
+			Order order = orderService.getDetailById(Long.parseLong(orderId), session);
+			List<Image> images = null;
+
 			if (order == null) {
 				return new JsonResponse(String.format("运单%s不存在", orderId)).generate();
 			}
@@ -264,15 +278,14 @@ public class MobileController {
 
 		// Order order = orderService.getById(Long.parseLong(orderId));
 		Session session = HibernateUtil.getCurrentSession();
-		session.beginTransaction();
-		Order order = orderService.getDetailById(Long.parseLong(orderId), session);
-		if (order == null) {
-			session.getTransaction().commit();
-			return new JsonResponse(String.format("运单%d不存在", orderId)).generate();
-		}
-
-		List<Image> images = null;
 		try {
+			session.beginTransaction();
+			Order order = orderService.getDetailById(Long.parseLong(orderId), session);
+			if (order == null) {
+				return new JsonResponse(String.format("运单%d不存在", orderId)).generate();
+			}
+
+			List<Image> images = null;
 			if (!order.getDriver().getEmployeeId().equals(employeeId)) {
 				return new JsonResponse("不能修改别人的运单").generate();
 			}
@@ -294,11 +307,11 @@ public class MobileController {
 			if (target == null) {
 				return new JsonResponse("无效的上传ID").generate();
 			}
-			
+
 			if (payload == null) {
 				return new JsonResponse("无效的payload").generate();
 			}
-			//payload = URLDecoder.decode(payload, "UTF-8");
+			// payload = URLDecoder.decode(payload, "UTF-8");
 			payload = Base64Util.unescape(payload);
 
 			String data = null;
@@ -315,14 +328,16 @@ public class MobileController {
 				data = payload;
 			}
 			target.setData(data.getBytes());
-			//target.setLastModified(new Date());
-			session.getTransaction().commit();
-			//orderService.update(order);
+			// target.setLastModified(new Date());
+			//session.getTransaction().commit();
+			// orderService.update(order);
 			return new JsonResponse(ErrorCode.OK).generate();
 		} catch (Exception e) {
 			session.getTransaction().rollback();
 			e.printStackTrace();
 			return new JsonResponse(ErrorCode.GENERIC_ERROR, e.getMessage()).generate();
+		} finally {
+			session.getTransaction().commit();
 		}
 	}
 
@@ -340,10 +355,11 @@ public class MobileController {
 		}
 
 		Session session = HibernateUtil.getCurrentSession();
-		session.beginTransaction();
-		Order order = orderService.getDetailById(Long.parseLong(orderId), session);
-		List<Image> images = null;
 		try {
+			session.beginTransaction();
+			Order order = orderService.getDetailById(Long.parseLong(orderId), session);
+			List<Image> images = null;
+
 			if (order == null) {
 				return new JsonResponse(String.format("运单%d不存在", orderId)).generate();
 			}
@@ -376,18 +392,15 @@ public class MobileController {
 				if (images.isEmpty()) {
 					order.setImage(null);
 				}
-				//orderService.update(order);
+				// orderService.update(order);
 
 				return new JsonResponse("摘要值不匹配，请重新上传").generate();
 			}
 			target.setReady(true);
+			return new JsonResponse(ErrorCode.OK).generate();
 		} finally {
 			session.getTransaction().commit();
 		}
-
-		//orderService.update(order);
-
-		return new JsonResponse(ErrorCode.OK).generate();
 	}
 
 	@RequestMapping(value = "/mobile/image/add", method = RequestMethod.POST, produces = "application/json; charset=utf-8")

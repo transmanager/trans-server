@@ -25,16 +25,20 @@ public abstract class BaseDao<T> {
 
 	protected T getById(long id, Class<T> clazz) {
 		Session session = HibernateUtil.getCurrentSession();
-		session.beginTransaction();
-		Query query = session.createQuery(String.format("from %s entity where entity.id = :id", clazz.getSimpleName()));
-		query.setParameter("id", id);
-		@SuppressWarnings("unchecked")
-		List<T> result = query.list();
-		session.getTransaction().commit();
-		if (result.size() == 0) {
-			return null;
-		} else {
-			return result.get(0);
+		try {
+			session.beginTransaction();
+			Query query = session.createQuery(String.format("from %s entity where entity.id = :id", clazz.getSimpleName()));
+			query.setParameter("id", id);
+			@SuppressWarnings("unchecked")
+			List<T> result = query.list();
+
+			if (result.size() == 0) {
+				return null;
+			} else {
+				return result.get(0);
+			}
+		} finally {
+			session.getTransaction().commit();
 		}
 	}
 
@@ -87,21 +91,24 @@ public abstract class BaseDao<T> {
 		}
 
 		Session session = HibernateUtil.getCurrentSession();
-		session.beginTransaction();
-		Query query = session.createQuery(hql);
-		HibernateUtil.assembleQuery(query, filter);
-		query.setFirstResult(offset);
-		query.setMaxResults(pageSize);
+		try {
+			session.beginTransaction();
+			Query query = session.createQuery(hql);
+			HibernateUtil.assembleQuery(query, filter);
+			query.setFirstResult(offset);
+			query.setMaxResults(pageSize);
 
-		@SuppressWarnings("unchecked")
-		List<T> list = query.list();
-		session.getTransaction().commit();
+			@SuppressWarnings("unchecked")
+			List<T> list = query.list();
 
-		QueryResult<T> result = new QueryResult<T>();
-		result.setTotal(total);
-		result.setMatch(match);
-		result.setData(list);
-		return result;
+			QueryResult<T> result = new QueryResult<T>();
+			result.setTotal(total);
+			result.setMatch(match);
+			result.setData(list);
+			return result;
+		} finally {
+			session.getTransaction().commit();
+		}
 	}
 
 	/**
@@ -158,28 +165,30 @@ public abstract class BaseDao<T> {
 
 	protected List<T> getByField(String field, String value, Class<T> clazz) {
 		Session session = HibernateUtil.getCurrentSession();
-		session.beginTransaction();
-		Query query = session.createQuery(String.format("from %s entity where entity.%s = :%s", clazz.getSimpleName(), field, field));
-		query.setParameter(field, value);
-		@SuppressWarnings("unchecked")
-		List<T> result = query.list();
-		session.getTransaction().commit();
-
-		if (result.size() == 0) {
-			return null;
-		} else {
-			return result;
+		try {
+			session.beginTransaction();
+			Query query = session.createQuery(String.format("from %s entity where entity.%s = :%s", clazz.getSimpleName(), field, field));
+			query.setParameter(field, value);
+			@SuppressWarnings("unchecked")
+			List<T> result = query.list();
+			if (result.size() == 0) {
+				return null;
+			} else {
+				return result;
+			}
+		} finally {
+			session.getTransaction().commit();
 		}
 	}
-	
+
 	protected List<T> getByField(String field, String value, Session session, Class<T> clazz) {
-		//Session session = HibernateUtil.getCurrentSession();
-		//session.beginTransaction();
+		// Session session = HibernateUtil.getCurrentSession();
+		// session.beginTransaction();
 		Query query = session.createQuery(String.format("from %s entity where entity.%s = :%s", clazz.getSimpleName(), field, field));
 		query.setParameter(field, value);
 		@SuppressWarnings("unchecked")
 		List<T> result = query.list();
-		//session.getTransaction().commit();
+		// session.getTransaction().commit();
 
 		if (result.size() == 0) {
 			return null;
@@ -195,30 +204,33 @@ public abstract class BaseDao<T> {
 		}
 
 		Session session = HibernateUtil.getCurrentSession();
-		session.beginTransaction();
-		Query query = session.createQuery(hql);
-		HibernateUtil.assembleQuery(query, filter);
-		@SuppressWarnings("rawtypes")
-		List list = query.list();
-		session.getTransaction().commit();
+		try {
+			session.beginTransaction();
+			Query query = session.createQuery(hql);
+			HibernateUtil.assembleQuery(query, filter);
+			@SuppressWarnings("rawtypes")
+			List list = query.list();
 
-		Integer count = Integer.parseInt(list.get(0).toString());
-		return count;
+			Integer count = Integer.parseInt(list.get(0).toString());
+			return count;
+		} finally {
+			session.getTransaction().commit();
+		}
 	}
-	
+
 	protected int getCount(Class<T> clazz, Session session, Map<String, Object> filter) throws ChannyException {
 		String hql = String.format("select count(*) from %s entity", clazz.getSimpleName());
 		if (filter != null && filter.size() > 0) {
 			hql = String.format("select count(*) %s", HibernateUtil.assembleHql(filter));
 		}
 
-		//Session session = HibernateUtil.getCurrentSession();
-		//session.beginTransaction();
+		// Session session = HibernateUtil.getCurrentSession();
+		// session.beginTransaction();
 		Query query = session.createQuery(hql);
 		HibernateUtil.assembleQuery(query, filter);
 		@SuppressWarnings("rawtypes")
 		List list = query.list();
-		//session.getTransaction().commit();
+		// session.getTransaction().commit();
 
 		Integer count = Integer.parseInt(list.get(0).toString());
 		return count;

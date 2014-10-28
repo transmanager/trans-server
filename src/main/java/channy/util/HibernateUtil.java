@@ -40,56 +40,34 @@ public class HibernateUtil {
 	}
 
 	public static <T> void persist(T entity) {
-		// Session session = HibernateUtil.openSession();
-		// try {
-		// session.beginTransaction();
-		// session.save(entity);
-		// session.getTransaction().commit();
-		// } finally {
-		// session.close();
-		// }
-
 		Session session = HibernateUtil.getCurrentSession();
-		session.beginTransaction();
-		session.save(entity);
-		session.getTransaction().commit();
+		try {
+			session.beginTransaction();
+			session.save(entity);
+		} finally {
+			session.getTransaction().commit();
+		}
 	}
 
 	public static <T> void update(T entity) {
-		// Session session = HibernateUtil.openSession();
-		// try {
-		// session.beginTransaction();
-		// session.update(entity);
-		// session.getTransaction().commit();
-		// } finally {
-		// session.close();
-		// }
-
 		Session session = HibernateUtil.getCurrentSession();
-		session.beginTransaction();
-		session.update(entity);
-		session.getTransaction().commit();
+		try {
+			session.beginTransaction();
+			session.update(entity);
+		} finally {
+			session.getTransaction().commit();
+		}
 	}
 
 	public static <T> void remove(T entity) {
-		// Session session = HibernateUtil.openSession();
-		// try {
-		// session.beginTransaction();
-		// session.delete(entity);
-		// session.getTransaction().commit();
-		// } finally {
-		// session.close();
-		// }
-
 		Session session = HibernateUtil.getCurrentSession();
-		session.beginTransaction();
-		session.delete(entity);
-		session.getTransaction().commit();
+		try {
+			session.beginTransaction();
+			session.delete(entity);
+		} finally {
+			session.getTransaction().commit();
+		}
 	}
-
-	// private static SessionFactory getSessionFactory() {
-	// return sessionFactory;
-	// }
 
 	private void close() {
 		sessionFactory.close();

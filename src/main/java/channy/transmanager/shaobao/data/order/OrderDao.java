@@ -76,16 +76,19 @@ public class OrderDao extends BaseDao<Order> {
 		// }
 
 		Session session = HibernateUtil.getCurrentSession();
-		session.beginTransaction();
-		Query query = session.createQuery("from Order order where order.cId like :cId");
-		query.setParameter("cId", String.format("%%%s%%", cId));
-		@SuppressWarnings("unchecked")
-		List<Order> result = query.list();
-		session.getTransaction().commit();
-		if (result.size() == 0) {
-			return null;
-		} else {
-			return result.get(0);
+		try {
+			session.beginTransaction();
+			Query query = session.createQuery("from Order order where order.cId like :cId");
+			query.setParameter("cId", String.format("%%%s%%", cId));
+			@SuppressWarnings("unchecked")
+			List<Order> result = query.list();
+			if (result.size() == 0) {
+				return null;
+			} else {
+				return result.get(0);
+			}
+		} finally {
+			session.getTransaction().commit();
 		}
 	}
 
@@ -319,15 +322,18 @@ public class OrderDao extends BaseDao<Order> {
 	@Override
 	public QueryResult<Order> query(int page, int pageSize, Map<String, Object> filter) throws ChannyException {
 		Session session = HibernateUtil.getCurrentSession();
-		session.beginTransaction();
-		QueryResult<Order> result = super.query(page, pageSize, filter, session, Order.class);
-		List<Order> orders = result.getData();
-		for (Order order : orders) {
-			order.getTruck().getMotorcade().getName();
-			order.getDriver().getName();
+		try {
+			session.beginTransaction();
+			QueryResult<Order> result = super.query(page, pageSize, filter, session, Order.class);
+			List<Order> orders = result.getData();
+			for (Order order : orders) {
+				order.getTruck().getMotorcade().getName();
+				order.getDriver().getName();
+			}
+			return result;
+		} finally {
+			session.getTransaction().commit();
 		}
-		session.getTransaction().commit();
-		return result;
 	}
 
 	@Override
@@ -337,52 +343,55 @@ public class OrderDao extends BaseDao<Order> {
 
 	public Order getDetailById(long id) {
 		Session session = HibernateUtil.getCurrentSession();
-		session.beginTransaction();
-		Order order = super.getById(id, session, Order.class);
-		order.getTruck().getMotorcade().getName();
-		order.getDriver().getName();
-		order.getClient().getName();
-		order.getImage().size();
-		if (order.getCargoSource() != null) {
-			order.getCargoSource().getName();
-		}
+		try {
+			session.beginTransaction();
+			Order order = super.getById(id, session, Order.class);
+			order.getTruck().getMotorcade().getName();
+			order.getDriver().getName();
+			order.getClient().getName();
+			order.getImage().size();
+			if (order.getCargoSource() != null) {
+				order.getCargoSource().getName();
+			}
 
-		if (order.getCargoDestination() != null) {
-			order.getCargoDestination().getName();
-		}
+			if (order.getCargoDestination() != null) {
+				order.getCargoDestination().getName();
+			}
 
-		if (order.getOreSource() != null) {
-			order.getOreSource().getName();
-		}
+			if (order.getOreSource() != null) {
+				order.getOreSource().getName();
+			}
 
-		if (order.getOreDestination() != null) {
-			order.getOreDestination().getName();
-		}
+			if (order.getOreDestination() != null) {
+				order.getOreDestination().getName();
+			}
 
-		if (order.getOre() != null) {
-			order.getOre().getName();
-		}
-		
-		if (order.getTolls() != null) {
-			order.getTolls().size();
-		}
-		
-		if (order.getAbnormalities() != null) {
-			order.getAbnormalities().size();
-		}
-		
-		if (order.getExpenses() != null) {
-			order.getExpenses().size();
-		}
-		
-		if (order.getCargo() != null) {
-			order.getCargo().size();
-		}
-		session.getTransaction().commit();
+			if (order.getOre() != null) {
+				order.getOre().getName();
+			}
 
-		return order;
+			if (order.getTolls() != null) {
+				order.getTolls().size();
+			}
+
+			if (order.getAbnormalities() != null) {
+				order.getAbnormalities().size();
+			}
+
+			if (order.getExpenses() != null) {
+				order.getExpenses().size();
+			}
+
+			if (order.getCargo() != null) {
+				order.getCargo().size();
+			}
+
+			return order;
+		} finally {
+			session.getTransaction().commit();
+		}
 	}
-	
+
 	public Order getDetailById(long id, Session session) {
 		return super.getById(id, session, Order.class);
 	}
