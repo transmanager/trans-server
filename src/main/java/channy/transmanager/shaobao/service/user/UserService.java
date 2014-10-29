@@ -124,13 +124,11 @@ public class UserService implements ServiceInterface<User> {
 
 	
 	public void removeById(long id) throws ChannyException {
-
 		dao.removeById(id);
 	}
 
 	
 	public void update(User user) {
-
 		dao.update(user);
 	}
 

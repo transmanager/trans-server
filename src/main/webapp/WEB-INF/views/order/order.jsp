@@ -1,3 +1,4 @@
+<%@page import="channy.transmanager.shaobao.feature.Page"%>
 <%@page import="channy.transmanager.shaobao.feature.Action"%>
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
 
@@ -357,6 +358,9 @@
 							<div class="highlight_black">
 								<button type="button" id="button_toggleFilter" onclick="toggleFilter()" title="搜索"  class="btn btn-primary btn-xs">
 									<span class="glyphicon glyphicon-search"></span>&nbsp;&nbsp;搜索
+								</button>
+								<button type="button" id="button_refresh" onclick="refresh('page_<%=Page.Order%>', currentPage)" title="搜索"  class="btn btn-primary btn-xs">
+									<span class="glyphicon glyphicon-refresh"></span>&nbsp;&nbsp;刷新
 								</button>
 								<button id="button_add" type="button" title="补录运单" onclick="onMakeup()" class="btn btn-primary btn-xs f_r">
 									<span class="glyphicon glyphicon-pencil"></span>&nbsp;&nbsp;补录

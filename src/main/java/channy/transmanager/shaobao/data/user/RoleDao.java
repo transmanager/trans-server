@@ -11,6 +11,8 @@ import java.util.Set;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.hibernate.Query;
+import org.hibernate.Session;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,6 +27,7 @@ import channy.transmanager.shaobao.feature.Page;
 import channy.transmanager.shaobao.model.user.Role;
 import channy.util.ChannyException;
 import channy.util.ErrorCode;
+import channy.util.HibernateUtil;
 import channy.util.XmlOperator;
 
 public class RoleDao extends BaseDao<Role> {
@@ -267,6 +270,22 @@ public class RoleDao extends BaseDao<Role> {
 		}
 
 		return null;
+	}
+	
+	public int getCountByRole(Role role) throws ChannyException {
+		Session session = HibernateUtil.getCurrentSession();
+		try {
+			session.beginTransaction();
+			Query query = session.createQuery("select count(*) from User user where user.role = :role");
+			query.setParameter("role", role);
+			@SuppressWarnings("rawtypes")
+			List list = query.list();
+
+			Integer count = Integer.parseInt(list.get(0).toString());
+			return count;
+		} finally {
+			session.getTransaction().commit();
+		}
 	}
 
 	public Role addClient() {

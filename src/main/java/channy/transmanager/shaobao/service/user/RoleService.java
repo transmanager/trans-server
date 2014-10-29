@@ -18,12 +18,17 @@ import channy.transmanager.shaobao.feature.Page;
 import channy.transmanager.shaobao.model.user.Role;
 import channy.transmanager.shaobao.service.ServiceInterface;
 import channy.util.ChannyException;
+import channy.util.ErrorCode;
 
 public class RoleService implements ServiceInterface<Role> {
 	private RoleDao dao = new RoleDao();
 
-	public Role add(String name, String description, Set<Module> grantedModules, Set<Page> grantedPages, Set<Action> grantedActions,
-			boolean isEditable) {
+	public JSONObject add(String name, String description, Set<Module> grantedModules, Set<Page> grantedPages, Set<Action> grantedActions,
+			boolean isEditable) throws ChannyException, JSONException {
+		if (dao.getByName(name) != null) {
+			throw new ChannyException(ErrorCode.OBJECT_EXISTED, "角色已存在，请使用唯一的角色名称并重试");
+		}
+		
 		Role role = new Role();
 		role.setName(name);
 		role.setDescription(description);
@@ -32,8 +37,13 @@ public class RoleService implements ServiceInterface<Role> {
 		role.setGrantedActions(grantedActions);
 		role.setEditable(isEditable);
 		dao.add(role);
+		
+		int total = getCount();
+		int page = (total - 1) / 15;
+		JSONObject data = new JSONObject();
+		data.put("page", page);
 
-		return role;
+		return data;
 	}
 
 	public Role getById(long id) {
@@ -74,7 +84,9 @@ public class RoleService implements ServiceInterface<Role> {
 		for (Role role : list) {
 			JSONObject obj = new JSONObject();
 			obj.put("id", role.getId());
-			if (role.getName().equals("超级用户")) {
+			int count = dao.getCountByRole(role);
+			obj.put("count", count);
+			if (role.getName().equals("超级用户") || count > 0) {
 				obj.put("editable", false);
 			} else {
 				obj.put("editable", true);
@@ -118,7 +130,7 @@ public class RoleService implements ServiceInterface<Role> {
 		return dao.getByName(name);
 	}
 
-	public void importRoles() {
+	public void importRoles() throws ChannyException, JSONException {
 		Set<Module> grantedModules = new HashSet<Module>();
 		Set<Page> grantedPages = new HashSet<Page>();
 		Set<Action> grantedActions = new HashSet<Action>();
@@ -148,7 +160,7 @@ public class RoleService implements ServiceInterface<Role> {
 		add("门卫", "", grantedModules, grantedPages, grantedActions, true);
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws ChannyException, JSONException {
 		RoleService service = new RoleService();
 		service.importRoles();
 		Role role = service.getById(1);

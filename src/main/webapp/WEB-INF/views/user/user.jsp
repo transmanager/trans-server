@@ -1,3 +1,4 @@
+<%@page import="channy.transmanager.shaobao.feature.Page"%>
 <%@page import="channy.transmanager.shaobao.feature.Action"%>
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
 
@@ -484,6 +485,9 @@
 							<div class="highlight_black">
 								<button type="button" id="button_toggleFilter" onclick="toggleFilter()" title="搜索"  class="btn btn-primary btn-xs">
 									<span class="glyphicon glyphicon-search"></span>&nbsp;&nbsp;搜索
+								</button>
+								<button type="button" id="button_refresh" onclick="refresh('page_<%=Page.User%>', currentPage)" title="搜索"  class="btn btn-primary btn-xs">
+									<span class="glyphicon glyphicon-refresh"></span>&nbsp;&nbsp;刷新
 								</button>
 								<button id="button_del" type="button" title="删除用户" onclick="onRemoveMultiple()" class="btn btn-danger btn-xs f_r" >
 									<span class="glyphicon glyphicon-trash"></span>&nbsp;&nbsp;删除

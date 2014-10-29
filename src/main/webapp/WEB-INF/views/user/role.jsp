@@ -1,3 +1,4 @@
+<%@page import="channy.transmanager.shaobao.feature.Page"%>
 <%@page import="channy.transmanager.shaobao.feature.Action"%>
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
 
@@ -66,11 +67,11 @@
 					beforeSend : function() {
 						$("#table tbody").empty();
 						$("#table tfoot").hide();
-						$("#table tbody").append('<tr><td colspan="5" style="text-align : center;">加载中...</td></tr>');
+						$("#table tbody").append('<tr><td colspan="6" style="text-align : center;">加载中...</td></tr>');
 					},
 					error : function (XMLHttpRequest, textStatus, errorThrown) {
 						$("#table tbody").empty();
-						$("#table tbody").append('<tr><td colspan="5" style="text-align :center; color: red;">' + '操作失败: ' + errorThrown + '</td></tr>');
+						$("#table tbody").append('<tr><td colspan="6" style="text-align :center; color: red;">' + '操作失败: ' + errorThrown + '</td></tr>');
 					}
 				},
 				ajaxUrl: 'role/query?action=<%=Action.RoleQuery%>&page={page}&pageSize={size}&{filterList:filter}&{sortList:column}',
@@ -85,12 +86,12 @@
 					$("#table tbody").empty();
 					$("#table tfoot").hide();
 					if (typeof(err) == 'undefined') {
-						$("#table tbody").append('<tr><td colspan="5" style="text-align :center; color: DarkRed;">操作失败: ' + err + '</td></tr>');
+						$("#table tbody").append('<tr><td colspan="6" style="text-align :center; color: DarkRed;">操作失败: ' + err + '</td></tr>');
 						return [ 1 ];
 					}
 							
 					if (err != "成功") {
-						$("#table tbody").append('<tr><td colspan="5" style="text-align :center; color: DarkRed;">操作失败: ' + err + '</td></tr>');
+						$("#table tbody").append('<tr><td colspan="6" style="text-align :center; color: DarkRed;">操作失败: ' + err + '</td></tr>');
 						return [ 1 ];
 					}
 
@@ -98,12 +99,12 @@
 					var match = response.data.match;
 					var r = response.data.data;
 					if (total == 0) {
-						$("#table tbody").append('<tr><td colspan="5" style="text-align : center;">无记录</td></tr>');
+						$("#table tbody").append('<tr><td colspan="6" style="text-align : center;">无记录</td></tr>');
 						return [ 1 ];
 					}
 							
 					if (match == 0) {
-						$("#table tbody").append('<tr><td colspan="5" style="text-align : center;">无匹配结果</td></tr>');
+						$("#table tbody").append('<tr><td colspan="6" style="text-align : center;">无匹配结果</td></tr>');
 						return [ 1 ];
 					}
 							
@@ -116,16 +117,18 @@
 						var name = r[i].name;
 						var dateCreated = r[i].dateCreated;
 						var description = r[i].description;
+						var count = r[i].count;
 
-						var row = '<tr id="user_' + id + '">';
+						var row = '<tr id="role_' + id + '">';
 						row += '<td>' + name + '</td>';
 						row += '<td>' + dateCreated + '</td>';
+						row += '<td style="text-align: right; padding-right: 2em;">' + count + '</td>';
 						row += '<td>' + description + '</td>';
 						row += '<td>' + '<button title="详情" class="row_button btn btn-default btn-xs"><span class="glyphicon glyphicon-info-sign"></span></button>';
 
 						if (editable) {
 							row += '<button class="row_button btn btn-default btn-xs" title="编辑 ' + name + '" onclick="onEdit(\'' + id + '\', \'' + name + '\')"><span class="glyphicon glyphicon-edit"></span></button>';
-							row += '<button class="row_button btn btn-danger btn-xs" title="删除 ' + name + '" onclick="onRemove(\'' + id + '\', \'' + name + '\')"><span class="glyphicon glyphicon-trash"></span></button>';
+							row += '<button class="row_button btn btn-danger btn-xs" title="删除 ' + name + '" onclick="onRemove(' + id + ')"><span class="glyphicon glyphicon-trash"></span></button>';
 							row += '</td>';
 							row += '<td style="text-align: center; padding-right: 0px;"><input type="checkbox" value="' + id + '" name="selected" id="checkbox_' + id + '" /></td>';
 						} else {
@@ -182,7 +185,7 @@
 			}).tablesorterPager(pagerOptions)
 			.bind('pageMoved', function(e, c){
 				currentPage = c.page;
-				$('.gotoPageShadow').val(currentPage + 1);
+				//$('.gotoPageShadow').val(currentPage + 1);
 			}).bind('pagerInitialized', function (e, c) {
 				/* currentPage = parseInt(c.page);
 				$('.gotoPageShadow').val(currentPage + 1);
@@ -196,7 +199,40 @@
 	});
 
 	function onAdd() {
-		//showDialog("role/dialog", "添加角色", true, "dialog-lg");
+		showDialog("role/dialog", "添加角色", true, "dialog-lg");
+	}
+
+	function onRemove(id) {
+		$.ajax({
+			url : 'role/remove',
+			type : 'post',
+			data : {
+				action : '<%=Action.RoleRemove%>',
+				id : id,
+			},
+			beforeSend : function() {
+				//$("#button_submit").text("处理中...");
+				//$("#button_submit").addClass("disabled");
+			},
+			success : function (response) {
+				//$("#button_submit").text("添加");
+				//$("#button_submit").removeClass("disabled");
+				
+				if (response.msg != "成功") {
+					showErrorDialog(response.msg);
+					return;
+				}
+
+				//$("#role_" + id).remove();
+				refresh("page_<%=Page.Role%>", currentPage);
+			},
+
+			error : function (jqXHR, textStatus, errorThrown) {
+				//$("#button_submit").text("添加");
+				//$("#button_submit").removeClass("disabled");
+				showErrorDialog(errorThrown);
+			}
+		});
 	}
 </script>
 
@@ -206,10 +242,13 @@
 		<table width="100%" id="table" cellspacing="0" cellpadding="0" class="tablesorter-dropbox">
 			<thead>
 				<tr>
-					<th colspan="5" class="filter-false sorter-false" style="cursor: default; padding-left: 0px;">
+					<th colspan="6" class="filter-false sorter-false" style="cursor: default; padding-left: 0px;">
 						<div class="highlight_black">
 							<button type="button" id="button_toggleFilter" onclick="toggleFilter()" title="搜索"  class="btn btn-primary btn-xs">
 								<span class="glyphicon glyphicon-search"></span>&nbsp;&nbsp;搜索
+							</button>
+							<button type="button" id="button_refresh" onclick="refresh('page_<%=Page.Role%>', currentPage)" title="搜索"  class="btn btn-primary btn-xs">
+								<span class="glyphicon glyphicon-refresh"></span>&nbsp;&nbsp;刷新
 							</button>
 							<button id="button_del" type="button" title="删除用户" onclick="onRemoveMultiple()" class="btn btn-danger btn-xs f_r" >
 								<span class="glyphicon glyphicon-trash"></span>&nbsp;&nbsp;删除
@@ -223,6 +262,7 @@
 				<tr class="headerRow highlight_black">
 					<th class="sorter-false" data-placeholder="搜索角色">角色<i></i></th>
 					<th class="sorter-false" style="width: 200px;">创建日期<i></i></th>
+					<th class="sorter-false" style="width: 60px;">用户数<i></i></th>
 					<th class="sorter-false filter-false">备注<i></i></th>
 					<th class="sorter-false filter-false" style="text-align: center; width: 60px;"><i></i></th>
 					<th class="filter-false sorter-false" style="text-align: center; width: 30px;">
@@ -234,7 +274,7 @@
 			</tbody>
 			<tfoot>
 				<tr>
-					<th colspan="5" class="pager" style="text-align: right; font-weight: bold;">
+					<th colspan="6" class="pager" style="text-align: right; font-weight: bold;">
 							<button class="first btn btn-default btn-xs" title="首页"><span class="glyphicon glyphicon-step-backward"></span></button>
 							<button class="prev btn btn-default btn-xs" title="上页"><span class="glyphicon glyphicon-backward"></span></button>
 							第 <select class="gotoPage"></select> 页
