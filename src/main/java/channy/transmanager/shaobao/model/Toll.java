@@ -7,9 +7,6 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
-
 import channy.transmanager.shaobao.model.order.Order;
 
 @Entity
@@ -26,12 +23,12 @@ public class Toll extends BaseEntity {
 	
 	@OneToOne
 	@JoinColumn(name = "entry")
-	@Cascade(value = {CascadeType.SAVE_UPDATE})
+	//@Cascade(value = {CascadeType.SAVE_UPDATE})
 	private TollStation entry;
 
 	@OneToOne
 	@JoinColumn(name = "_exit")
-	@Cascade(value = {CascadeType.SAVE_UPDATE})
+	//@Cascade(value = {CascadeType.SAVE_UPDATE})
 	private TollStation exit;
 	private double amount;
 	private boolean isLoading = false;

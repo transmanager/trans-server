@@ -1,14 +1,17 @@
 package channy.transmanager.shaobao.service.user;
 
 import java.util.List;
+import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import channy.transmanager.shaobao.data.QueryResult;
 import channy.transmanager.shaobao.data.user.DriverDao;
 import channy.transmanager.shaobao.model.order.Order;
 import channy.transmanager.shaobao.model.user.Driver;
+import channy.util.ChannyException;
 
 public class DriverService extends UserService {
 	private DriverDao dao = new DriverDao();
@@ -53,5 +56,45 @@ public class DriverService extends UserService {
 
 	public Driver getNextCandidate() {
 		return dao.scheduleDriver();
+	}
+
+	public JSONObject select(int page, int pageSize, Map<String, Object> filter) throws ChannyException, JSONException {
+		QueryResult<Driver> result = dao.query(page, pageSize, filter);
+		List<Driver> list = result.getData();
+
+		JSONObject obj = new JSONObject();
+		obj.put("total", result.getMatch());
+
+		JSONArray array = new JSONArray();
+		for (Driver user : list) {
+			JSONObject u = new JSONObject();
+			u.put("id", user.getId());
+			// u.put("employeeId", user.getEmployeeId());
+			u.put("text", user.getName());
+			array.put(u);
+		}
+		obj.put("data", array);
+
+		return obj;
+	}
+
+	public JSONObject getAvailableDrivers(String name, int page, int pageSize) throws ChannyException, JSONException {
+		QueryResult<Driver> result = dao.getAvailableDrivers(name, page, pageSize);
+		List<Driver> list = result.getData();
+
+		JSONObject obj = new JSONObject();
+		obj.put("total", result.getMatch());
+
+		JSONArray array = new JSONArray();
+		for (Driver user : list) {
+			JSONObject u = new JSONObject();
+			u.put("id", user.getId());
+			// u.put("employeeId", user.getEmployeeId());
+			u.put("text", user.getName());
+			array.put(u);
+		}
+		obj.put("data", array);
+
+		return obj;
 	}
 }

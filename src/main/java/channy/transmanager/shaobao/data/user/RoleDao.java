@@ -265,11 +265,11 @@ public class RoleDao extends BaseDao<Role> {
 
 	public Role getByName(String name) {
 		List<Role> roles = super.getByField("name", name, Role.class);
-		if (roles != null) {
-			return roles.get(0);
+		if (roles.isEmpty()) {
+			return null;
 		}
 
-		return null;
+		return roles.get(0);
 	}
 	
 	public int getCountByRole(Role role) throws ChannyException {

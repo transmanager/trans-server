@@ -171,11 +171,7 @@ public abstract class BaseDao<T> {
 			query.setParameter(field, value);
 			@SuppressWarnings("unchecked")
 			List<T> result = query.list();
-			if (result.size() == 0) {
-				return null;
-			} else {
-				return result;
-			}
+			return result;
 		} finally {
 			session.getTransaction().commit();
 		}
@@ -190,11 +186,7 @@ public abstract class BaseDao<T> {
 		List<T> result = query.list();
 		// session.getTransaction().commit();
 
-		if (result.size() == 0) {
-			return null;
-		} else {
-			return result;
-		}
+		return result;
 	}
 
 	protected int getCount(Class<T> clazz, Map<String, Object> filter) throws ChannyException {

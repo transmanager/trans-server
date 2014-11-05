@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -147,7 +148,11 @@ public class UserService implements ServiceInterface<User> {
 		for (User user : list) {
 			JSONObject u = new JSONObject();
 			u.put("id", user.getId());
-			u.put("employeeId", user.getEmployeeId());
+			if (user.getEmployeeId() == null) {
+				u.put("employeeId", "待分配");
+			} else {
+				u.put("employeeId", user.getEmployeeId());
+			}
 			u.put("status", user.getStatus().toString());
 			if (user.getRole() == null) {
 				continue;
@@ -302,6 +307,10 @@ public class UserService implements ServiceInterface<User> {
 		UserService service = new UserService();
 		service.add("admin", "admin", "admin", "超级用户");
 		service.importUser("/Users/Channy/Desktop/Channy's/shaobao/names");
+		
+//		Map<String, Object> filter = new HashMap<String, Object>();
+//		filter.put("status", UserStatus.Idle);
+//		System.out.println(service.select(0, 99, filter));
 		
 //		User user = service.getById(1);
 //		Set<Module> modules = user.getGrantedModules();

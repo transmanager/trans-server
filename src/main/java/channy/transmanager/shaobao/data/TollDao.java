@@ -21,26 +21,9 @@ public class TollDao extends BaseDao<Toll> {
 	public QueryResult<Toll> query(int page, int pageSize, Map<String, Object> filter) throws ChannyException {
 		return super.query(page, pageSize, filter, Toll.class);
 	}
-//	public static Toll add(TollStation entry, TollStation exit, double amount, boolean isLoading) {
-//		Toll toll = new Toll();
-//		toll.setEntry(entry);
-//		toll.setExit(exit);
-//		toll.setAmount(amount);
-//		toll.setLoading(isLoading);
-//		
-//		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-//		session.beginTransaction();
-//		session.save(toll);
-//
-//		session.getTransaction().commit();
-//		
-//		return toll;
-//	}
 
 	@Override
 	public int getCount(Map<String, Object> filter) throws ChannyException {
 		return super.getCount(Toll.class, filter);
 	}
-	
-	
 }

@@ -160,7 +160,7 @@ public class TruckService implements ServiceInterface<Truck> {
 				Truck truck = add(parts[0], "韶宝", null);
 
 				List<User> drivers = service.getByName(parts[1]);
-				if (drivers == null) {
+				if (drivers.isEmpty()) {
 					continue;
 				}
 

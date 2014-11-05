@@ -225,9 +225,9 @@ public class MotorcadeDao extends BaseDao<Motorcade> {
 	
 	public Motorcade getByName(String name) {
 		List<Motorcade> result = super.getByField("name", name, Motorcade.class);
-		if (result != null) {
-			return result.get(0);
+		if (result.isEmpty()) {
+			return null;
 		}
-		return null;
+		return result.get(0);
 	}
 }

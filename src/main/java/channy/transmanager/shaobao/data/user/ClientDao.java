@@ -78,10 +78,10 @@ public class ClientDao extends BaseDao<Client> {
 	
 	public Client getByName(String name) {
 		List<Client> clients = super.getByField("name", name, Client.class);
-		if (clients != null) {
-			return clients.get(0);
+		if (clients.isEmpty()) {
+			return null;
 		}
 		
-		return null;
+		return clients.get(0);
 	}
 }

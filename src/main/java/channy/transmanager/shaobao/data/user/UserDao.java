@@ -51,7 +51,7 @@ public class UserDao extends BaseDao<User> {
 
 	public User getByEmployeeId(String employeeId) {
 		List<User> result = super.getByField("employeeId", employeeId, User.class);
-		if (result == null) {
+		if (result.isEmpty()) {
 			return null;
 		}
 
@@ -69,7 +69,7 @@ public class UserDao extends BaseDao<User> {
 
 	public User getDetailByEmployeeId(String employeeId, Session session) {
 		List<User> result = super.getByField("employeeId", employeeId, session, User.class);
-		if (result == null) {
+		if (result.isEmpty()) {
 			return null;
 		}
 

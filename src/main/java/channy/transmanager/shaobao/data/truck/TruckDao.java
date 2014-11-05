@@ -244,11 +244,11 @@ public class TruckDao extends BaseDao<Truck> {
 
 	public Truck getByPlate(String plate) {
 		List<Truck> result = super.getByField("plate", plate, Truck.class);
-		if (result != null) {
-			return result.get(0);
+		if (result.isEmpty()) {
+			return null;
 		}
 
-		return null;
+		return result.get(0);
 	}
 
 	@Override

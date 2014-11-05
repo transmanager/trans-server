@@ -1,5 +1,6 @@
 package channy.transmanager.shaobao.data.user;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -209,18 +210,26 @@ public class DriverDao extends BaseDao<Driver> {
 		}
 	}
 
-	public List<Driver> getAvailableDrivers() {
-		Session session = HibernateUtil.getCurrentSession();
-		try {
-			session.beginTransaction();
-			Query query = session.createQuery("from Driver driver where driver.status = :status order by driver.lastOrder desc");
-			query.setParameter("status", UserStatus.Idle);
-			@SuppressWarnings("unchecked")
-			List<Driver> result = query.list();
-			return result;
-		} finally {
-			session.getTransaction().commit();
+	public QueryResult<Driver> getAvailableDrivers(String name, int page, int pageSize) throws ChannyException {
+		// Session session = HibernateUtil.getCurrentSession();
+		// try {
+		// session.beginTransaction();
+		// Query query =
+		// session.createQuery("from Driver driver where driver.status = :status order by driver.lastOrder desc");
+		// query.setParameter("status", UserStatus.Idle);
+		// @SuppressWarnings("unchecked")
+		// List<Driver> result = query.list();
+		// return result;
+		// } finally {
+		// session.getTransaction().commit();
+		// }
+
+		Map<String, Object> filter = new HashMap<String, Object>();
+		filter.put("status", UserStatus.Idle);
+		if (name != null && !name.isEmpty()) {
+			filter.put("name", name);
 		}
+		return super.query(page, pageSize, filter, Driver.class);
 	}
 
 	public Driver scheduleDriver() {

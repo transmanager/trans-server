@@ -19,7 +19,7 @@
 		<property name="hibernate.c3p0.timeout">1800</property>
 		<property name="hibernate.c3p0.validationQuery">SELECT 1</property>
 
-		<!-- <property name="show_sql">true</property> -->
+		<property name="show_sql">true</property>
 		
 		<mapping class="channy.transmanager.shaobao.model.user.User" />
 		<mapping class="channy.transmanager.shaobao.model.user.Driver" />

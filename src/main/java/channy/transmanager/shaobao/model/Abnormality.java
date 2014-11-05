@@ -23,7 +23,7 @@ public class Abnormality extends BaseEntity {
 	
 	private Date dateOccurred;
 
-	@OneToMany(fetch = FetchType.EAGER)
+	@OneToMany(fetch = FetchType.LAZY)
 	@Cascade(CascadeType.SAVE_UPDATE)
 	@JoinColumn(name = "abnormality")
 	private List<Image> images;

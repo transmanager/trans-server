@@ -151,6 +151,10 @@ String dialogId = request.getParameter("dialogId");
 			        return {id:term, text:term};
 			    }
 	        },
+	        initSelection: function(element, callback) {
+                var data = {};
+            	callback(data);
+            },
             multiple: false,
 		});
 
@@ -182,6 +186,10 @@ String dialogId = request.getParameter("dialogId");
 			        return {id:term, text:term};
 			    }
 	        },
+	        initSelection: function(element, callback) {
+                var data = {};
+            	callback(data);
+            },
             multiple: false,
 		});
 
@@ -213,6 +221,10 @@ String dialogId = request.getParameter("dialogId");
 			        return {id:term, text:term};
 			    }
 	        },
+	        initSelection: function(element, callback) {
+                var data = {};
+            	callback(data);
+            },
             multiple: false,
 		});
 
@@ -244,6 +256,10 @@ String dialogId = request.getParameter("dialogId");
 			        return {id:term, text:term};
 			    }
 	        },
+	        initSelection: function(element, callback) {
+                var data = {};
+            	callback(data);
+            },
             multiple: false,
 		});
 
@@ -274,6 +290,10 @@ String dialogId = request.getParameter("dialogId");
 			        return {id:term, text:term};
 			    }
 	        },
+	        initSelection: function(element, callback) {
+                var data = {};
+            	callback(data);
+            },
             multiple: false,
 		});
 	});
@@ -316,12 +336,13 @@ String dialogId = request.getParameter("dialogId");
 			return false;
 		}
 
+		var flag = true;
 		var type = $("#orderType").find("input:radio:checked").val();
 		if (type != 'OreOnly') {
 			 if ($("#has_dId").is(":checked") && $("#dId").val() == '') {
 				$("#dId").focus();
 				return false;
-			} 
+			}
 	
 			if ($("#cargoSource").select2('data') == null) {
 				$("#cargoSource").select2('open');
@@ -333,7 +354,6 @@ String dialogId = request.getParameter("dialogId");
 				return false;
 			}
 	
-			var flag = true;
 			$("#cargoContainer").find('.cIdContainer').each(function(index, value) {
 				if (!flag) {
 					return false;
@@ -440,7 +460,7 @@ String dialogId = request.getParameter("dialogId");
 		html += '</tr>';
 		html += '<tr>';
 
-		var tmp = $("#orderType").find("input:radio:checked").val()
+		var tmp = $("#orderType").find("input:radio:checked").val();
 		var type = "双程";
 		if (tmp == 'CargoOnly') {
 			type = '单程货';
@@ -468,46 +488,53 @@ String dialogId = request.getParameter("dialogId");
 		html += '</tr>';
 		html += '<tr>';
 
-		if($("#has_dId").is(':checked')) {
-			html += '<td>调运单号：' + $("#dId").val() + '</td>';
-		} else {
-			html += '<td>调运单号：无</td>';
-		}
-		html += '<td>装车点：' + $("#cargoSource").select2('data').text + '</td>';
-		html += '<td>到站：' + $("#cargoDestination").select2('data').text + '</td>';
-		html += '</tr>';
-		html += '<tr>';
-		$("#cargoContainer").find('.cIdContainer').each(function(index, value) {
-			var cId = $(value).find("input").val();
-			html += '<td>出库单：' + cId + '</td>';
-			$(value).nextUntil('.cIdContainer').each(function(index2, value2) {
-				var name = $(value2).find(".product").select2('data').text;
-				var amount = $(value2).find("input:eq(2)").val();
-				var weight = $(value2).find("input:eq(3)").val();
-				if (index2 != 0) {
-					html += '<tr>';
-					html += '<td></td>';
-				}
-				html += '<td>货物：' + name + amount + '件，' + weight + '吨</td>';
-				html += '</tr>';
+		var type = $("#orderType").find("input:radio:checked").val();
+		if (type != 'OreOnly') {
+			if($("#has_dId").is(':checked')) {
+				html += '<td>调运单号：' + $("#dId").val() + '</td>';
+			} else {
+				html += '<td>调运单号：无</td>';
+			}
+			html += '<td>装车点：' + $("#cargoSource").select2('data').text + '</td>';
+			html += '<td>到站：' + $("#cargoDestination").select2('data').text + '</td>';
+			html += '</tr>';
+			html += '<tr>';
+			$("#cargoContainer").find('.cIdContainer').each(function(index, value) {
+				var cId = $(value).find("input").val();
+				html += '<td>出库单：' + cId + '</td>';
+				$(value).nextUntil('.cIdContainer').each(function(index2, value2) {
+					var name = $(value2).find(".product").select2('data').text;
+					var amount = $(value2).find("input:eq(2)").val();
+					var weight = $(value2).find("input:eq(3)").val();
+					if (index2 != 0) {
+						html += '<tr>';
+						html += '<td></td>';
+					}
+					html += '<td>货物：' + name + amount + '件，' + weight + '吨</td>';
+					html += '</tr>';
+				});
 			});
-		});
+			
+			html += '<tr>';
+			html += '<td colspan="4"><hr /></td>';
+			html += '</tr>';
+		}
+
+		if (type != 'CargoOnly') {
+			html += '<tr>';
+			html += '<td>矿单号：' + $("#oId").val() + '</td>';
+			html += '<td>装车点：' + $("#oreSource").select2('data').text + '</td>';
+			html += '</tr>';
+			html += '<tr>';
+			html += '<td>矿物：' + $("#ore").select2('data').text + '</td>';
+			html += '<td>矿重：' + $("#oreWeight").val() + '吨</td>';
+			html += '<td>韶钢磅重：' + $("#oreFinalWeight").val() + '吨</td>';
+			html += '</tr>';
+			html += '<tr>';
+			html += '<td colspan="4"><hr /></td>';
+			html += '</tr>';
+		}
 		
-		html += '<tr>';
-		html += '<td colspan="4"><hr /></td>';
-		html += '</tr>';
-		html += '<tr>';
-		html += '<td>矿单号：' + $("#oId").val() + '</td>';
-		html += '<td>装车点：' + $("#oreSource").select2('data').text + '</td>';
-		html += '</tr>';
-		html += '<tr>';
-		html += '<td>矿物：' + $("#ore").select2('data').text + '</td>';
-		html += '<td>矿重：' + $("#oreWeight").val() + '吨</td>';
-		html += '<td>韶钢磅重：' + $("#oreFinalWeight").val() + '吨</td>';
-		html += '</tr>';
-		html += '<tr>';
-		html += '<td colspan="4"><hr /></td>';
-		html += '</tr>';
 		$(".toll").each(function(index, value) {
 			var entry = $(value).find('.tollstation:eq(0)').select2('data').text;
 			var exit = $(value).find('.tollstation:eq(2)').select2('data').text;
@@ -532,6 +559,7 @@ String dialogId = request.getParameter("dialogId");
 			html += '<td>罚单：' + description +'，￥' + amount + '</td>';
 			html += '</tr>';
 		});
+		
 		$('.other-expenses').each(function(index, value) {
 			var amount = $(value).find("input:eq(1)").val();
 			var description = $(value).find("input:eq(0)").val();
@@ -549,48 +577,54 @@ String dialogId = request.getParameter("dialogId");
 	}
 
 	function onConfirmMakeup() {
+		var type = $("#orderType").find("input:radio:checked").val();
+		
 		var cargoInfo = {};
-		if ($("#has_dId").is(":checked")) {
-			cargoInfo.dId = $("#dId").val();
-		}
-		cargoInfo.cargoSource = $("#cargoSource").select2('data').text;
-		cargoInfo.cargoDestination = $("#cargoDestination").select2('data').text;
-		cargoInfo.cargo = [];
-		$("#cargoContainer").find('.cIdContainer').each(function(index, value) {
-			var sheet = {};
-			var cId = $(value).find("input").val();
-			sheet.cId = cId;
-			var products = [];
-			$(value).nextUntil('.cIdContainer').each(function(index2, value2) {
-				var product = {};
-				var name = $(value2).find(".product").select2('data').text;
-				var amount = $(value2).find("input:eq(2)").val();
-				var weight = $(value2).find("input:eq(3)").val();
-				product.name = name;
-				product.amount = amount;
-				product.weight = weight;
-
-				products.push(product);
+		if (type != 'OreOnly') {
+			if ($("#has_dId").is(":checked")) {
+				cargoInfo.dId = $("#dId").val();
+			}
+			cargoInfo.cargoSource = $("#cargoSource").select2('data').text;
+			cargoInfo.cargoDestination = $("#cargoDestination").select2('data').text;
+			cargoInfo.cargo = [];
+			$("#cargoContainer").find('.cIdContainer').each(function(index, value) {
+				var sheet = {};
+				var cId = $(value).find("input").val();
+				sheet.cId = cId;
+				var products = [];
+				$(value).nextUntil('.cIdContainer').each(function(index2, value2) {
+					var product = {};
+					var name = $(value2).find(".product").select2('data').text;
+					var amount = $(value2).find("input:eq(2)").val();
+					var weight = $(value2).find("input:eq(3)").val();
+					product.name = name;
+					product.amount = amount;
+					product.weight = weight;
+	
+					products.push(product);
+				});
+				sheet.products = products;
+				cargoInfo.cargo.push(sheet);
 			});
-			sheet.products = products;
-			cargoInfo.cargo.push(sheet);
-		});
 
-		cargoInfo.images = [];
-		$("#outboundImageContainer").find("img").each(function (index, value){
-			cargoInfo.images.push($(value).attr('src'));
-		});
+			cargoInfo.images = [];
+			$("#outboundImageContainer").find("img").each(function (index, value){
+				cargoInfo.images.push($(value).attr('src'));
+			});
+		}
 
 		var oreInfo = {};
-		oreInfo.oId = $("#oId").val();
-		oreInfo.oreSource = $("#oreSource").select2('data').text;
-		oreInfo.ore = $("#ore").select2('data').text;
-		oreInfo.oreWeight = $("#oreWeight").val();
-		oreInfo.oreFinalWeight = $("#oreFinalWeight").val();
-		oreInfo.images = [];
-		$("#inboundImageContainer").find("img").each(function (index, value){
-			oreInfo.images.push($(value).attr('src'));
-		});
+		if (type != 'CargoOnly') {
+			oreInfo.oId = $("#oId").val();
+			oreInfo.oreSource = $("#oreSource").select2('data').text;
+			oreInfo.ore = $("#ore").select2('data').text;
+			oreInfo.oreWeight = $("#oreWeight").val();
+			oreInfo.oreFinalWeight = $("#oreFinalWeight").val();
+			oreInfo.images = [];
+			$("#inboundImageContainer").find("img").each(function (index, value){
+				oreInfo.images.push($(value).attr('src'));
+			});
+		}
 
 		var toll = [];
 		$('.toll').each(function(index, value) {
@@ -986,23 +1020,29 @@ String dialogId = request.getParameter("dialogId");
 	}
 
 	function onSelectRoundTrip() {
+		$(".panel:eq(1) input").removeAttr("disabled");
+		$(".panel:eq(1) button").removeAttr("disabled");
 		$(".panel:eq(2) input").removeAttr("disabled");
-		$(".panel:eq(2) button").removeAttr("disabled");
-		$(".panel:eq(3) input").removeAttr("disabled");
+
+		$(":file").filestyle('disabled', false);
 	}
 
 	function onSelectOreOnly() {
-		$(".panel:eq(2) input").attr("disabled", "true");
-		$(".panel:eq(2) button").attr("disabled", "true");
+		$(".panel:eq(1) input").attr("disabled", "true");
+		$(".panel:eq(1) :file").filestyle('disabled', true);
+		$(".panel:eq(1) button").attr("disabled", "true");
 
-		$(".panel:eq(3) input").removeAttr("disabled");
+		$(".panel:eq(2) input").removeAttr("disabled");
+		$(".panel:eq(2) :file").filestyle('disabled', false);
 	}
 
 	function onSelectCargoOnly() {
-		$(".panel:eq(3) input").attr("disabled", "true");
+		$(".panel:eq(2) input").attr("disabled", "true");
+		$(".panel:eq(2) :file").filestyle('disabled', true);
 
-		$(".panel:eq(2) input").removeAttr("disabled");
-		$(".panel:eq(2) button").removeAttr("disabled");
+		$(".panel:eq(1) input").removeAttr("disabled");
+		$(".panel:eq(1) :file").filestyle('disabled', false);
+		$(".panel:eq(1) button").removeAttr("disabled");
 	}
 
 	function onToggleDId(which) {

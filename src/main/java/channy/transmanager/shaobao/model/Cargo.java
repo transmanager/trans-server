@@ -18,6 +18,7 @@ public class Cargo extends BaseEntity {
 	
 	@OneToOne
 	@JoinColumn(name = "product")
+	//@Cascade(CascadeType.SAVE_UPDATE)
 	private Product product;
 	private int amount;
 	private double weight;

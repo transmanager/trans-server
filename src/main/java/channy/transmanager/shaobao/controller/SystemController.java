@@ -32,6 +32,7 @@ import channy.transmanager.shaobao.model.TollStation;
 import channy.transmanager.shaobao.model.user.User;
 import channy.transmanager.shaobao.model.vehicle.Motorcade;
 import channy.transmanager.shaobao.model.vehicle.Truck;
+import channy.transmanager.shaobao.model.vehicle.TruckStatus;
 import channy.transmanager.shaobao.service.OreService;
 import channy.transmanager.shaobao.service.PlaceService;
 import channy.transmanager.shaobao.service.ProductService;
@@ -139,6 +140,12 @@ public class SystemController {
 		String name = request.getParameter("name");
 		if (name != null) {
 			filter.put("plate", name);
+		}
+		
+		String status = request.getParameter("status");
+		if (status != null) {
+			TruckStatus s = TruckStatus.valueOf(status);
+			filter.put("status", s);
 		}
 
 		JSONObject data = truckService.select(page - 1, pageSize, filter);

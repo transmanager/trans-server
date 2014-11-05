@@ -35,7 +35,6 @@ import channy.util.ErrorCode;
 
 public class OrderService implements ServiceInterface<Order> {
 	private OrderDao dao = new OrderDao();
-
 	
 	public Order getById(long id) {
 		return dao.getById(id);
@@ -156,7 +155,7 @@ public class OrderService implements ServiceInterface<Order> {
 
 		return data;
 	}
-
+	
 	public JSONObject scheduleClientOrder(Motorcade motorcade, Driver driver, Truck truck, Client client, OrderType type, User scheduler)
 			throws ChannyException, JSONException {
 		dao.schedule(motorcade, driver, truck, client, type, null, null, null, null, null, null, null, null, null, scheduler);
@@ -183,7 +182,7 @@ public class OrderService implements ServiceInterface<Order> {
 
 		return data;
 	}
-
+	
 	public JSONObject updateStatus(Order order) throws JSONException {
 		Driver driver = order.getDriver();
 		Truck truck = order.getTruck();

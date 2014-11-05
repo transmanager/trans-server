@@ -3,6 +3,7 @@ package channy.transmanager.shaobao.model.user;
 import java.util.Date;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -22,7 +23,7 @@ public class Driver extends User {
 	@Transient
 	private static final long serialVersionUID = -3419112915334734620L;
 
-	@OneToOne
+	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "truck")
 	@Cascade(value = {CascadeType.SAVE_UPDATE})
 	private Truck truck;

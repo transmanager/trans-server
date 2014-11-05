@@ -22,6 +22,7 @@ import org.xml.sax.SAXException;
 import channy.transmanager.shaobao.feature.Action;
 import channy.transmanager.shaobao.model.user.Role;
 import channy.transmanager.shaobao.model.user.UserStatus;
+import channy.transmanager.shaobao.service.user.DriverService;
 import channy.transmanager.shaobao.service.user.UserService;
 import channy.util.ChannyException;
 import channy.util.ErrorCode;
@@ -31,6 +32,7 @@ import channy.util.JsonResponse;
 @Controller
 public class UserController {
 	private UserService userService = new UserService();
+	private DriverService driverService = new DriverService();
 
 	private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
@@ -81,7 +83,6 @@ public class UserController {
 		}
 
 		Map<String, Object> filter = new HashMap<String, Object>();
-		//filter.put(HibernateUtil.ClassKey, User.class);
 		String name = request.getParameter("name");
 		if (name != null) {
 			filter.put("name", name);
@@ -89,7 +90,6 @@ public class UserController {
 
 		String role = request.getParameter("role");
 		if (role != null) {
-//			filter.put("role.name", role);
 			Map<String, Object> nestedFilter = new HashMap<String, Object>();
 			nestedFilter.put(HibernateUtil.ClassKey, Role.class);
 			nestedFilter.put("name", role);
@@ -103,6 +103,18 @@ public class UserController {
 		}
 
 		JSONObject data = userService.select(page - 1, pageSize, filter);
+		return new JsonResponse(ErrorCode.OK, data).generate();
+	}
+	
+	@RequestMapping(value = "/driver/select", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
+	public @ResponseBody String selectDriver(@RequestParam("action") String action, @RequestParam("page") int page, @RequestParam("pageSize") int pageSize, HttpServletRequest request)
+			throws JSONException, ChannyException {
+		if (Action.valueOf(Action.class, action) != Action.UserQuery) {
+			return new JsonResponse(ErrorCode.BAD_REQUEST_CODE).generate();
+		}
+
+		String name = request.getParameter("name");
+		JSONObject data = driverService.getAvailableDrivers(name, page, pageSize);
 		return new JsonResponse(ErrorCode.OK, data).generate();
 	}
 

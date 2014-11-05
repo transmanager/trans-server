@@ -57,24 +57,6 @@ public class OrderDao extends BaseDao<Order> {
 	// }
 
 	public Order getByCId(String cId) {
-		// Session session = HibernateUtil.openSession();
-		// try {
-		// session.beginTransaction();
-		// Query query =
-		// session.createQuery("from Order order where order.cId like :cId");
-		// query.setParameter("cId", String.format("%%%s%%", cId));
-		// @SuppressWarnings("unchecked")
-		// List<Order> result = query.list();
-		// session.getTransaction().commit();
-		// if (result.size() == 0) {
-		// return null;
-		// } else {
-		// return result.get(0);
-		// }
-		// } finally {
-		// session.close();
-		// }
-
 		Session session = HibernateUtil.getCurrentSession();
 		try {
 			session.beginTransaction();
@@ -93,21 +75,11 @@ public class OrderDao extends BaseDao<Order> {
 	}
 
 	public Order getByOId(String oId) {
-		return (Order) super.getByField("oId", oId, Order.class);
-		// Session session =
-		// HibernateUtil.getSessionFactory().getCurrentSession();
-		// session.beginTransaction();
-		// Query query =
-		// session.createQuery("from Order order where order.oId = :oId");
-		// query.setParameter("oId", oId);
-		// @SuppressWarnings("unchecked")
-		// List<Order> result = query.list();
-		// session.getTransaction().commit();
-		// if (result.size() == 0) {
-		// return null;
-		// } else {
-		// return result.get(0);
-		// }
+		List<Order> result = super.getByField("oId", oId, Order.class);
+		if (result.isEmpty()) {
+			return null;
+		}
+		return result.get(0);
 	}
 
 	// public static void addRoundTripOrder(Scheduler scheduler, Driver driver,

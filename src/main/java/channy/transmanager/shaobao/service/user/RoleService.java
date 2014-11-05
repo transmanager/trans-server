@@ -163,9 +163,9 @@ public class RoleService implements ServiceInterface<Role> {
 	public static void main(String[] args) throws ChannyException, JSONException {
 		RoleService service = new RoleService();
 		service.importRoles();
-		Role role = service.getById(1);
-		for (Module module : role.getGrantedModules()) {
-			System.out.println(module.getDescription());
-		}
+//		Role role = service.getById(1);
+//		for (Module module : role.getGrantedModules()) {
+//			System.out.println(module.getDescription());
+//		}
 	}
 }

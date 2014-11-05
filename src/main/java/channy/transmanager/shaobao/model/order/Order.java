@@ -77,7 +77,7 @@ public class Order extends BaseEntity {
 
 	@OneToOne
 	@JoinColumn(name = "cargoSource")
-	@Cascade(value = {CascadeType.SAVE_UPDATE})
+	//@Cascade(value = {CascadeType.SAVE_UPDATE})
 	private Place cargoSource;
 	
 	@OneToOne
@@ -87,12 +87,12 @@ public class Order extends BaseEntity {
 	
 	@OneToOne
 	@JoinColumn(name = "oreSource")
-	@Cascade(value = {CascadeType.SAVE_UPDATE})
+	//@Cascade(value = {CascadeType.SAVE_UPDATE})
 	private Place oreSource;
 	
 	@OneToOne
 	@JoinColumn(name = "oreDestination")
-	@Cascade(value = {CascadeType.SAVE_UPDATE})
+	//@Cascade(value = {CascadeType.SAVE_UPDATE})
 	private Place oreDestination;
 	
 	@OneToMany(fetch = FetchType.LAZY)
