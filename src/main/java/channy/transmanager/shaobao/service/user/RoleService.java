@@ -28,7 +28,7 @@ public class RoleService implements ServiceInterface<Role> {
 		if (dao.getByName(name) != null) {
 			throw new ChannyException(ErrorCode.OBJECT_EXISTED, "角色已存在，请使用唯一的角色名称并重试");
 		}
-		
+
 		Role role = new Role();
 		role.setName(name);
 		role.setDescription(description);
@@ -37,13 +37,31 @@ public class RoleService implements ServiceInterface<Role> {
 		role.setGrantedActions(grantedActions);
 		role.setEditable(isEditable);
 		dao.add(role);
-		
+
 		int total = getCount();
 		int page = (total - 1) / 15;
 		JSONObject data = new JSONObject();
 		data.put("page", page);
 
 		return data;
+	}
+
+	public void edit(long id, String name, String description, Set<Module> grantedModules, Set<Page> grantedPages,
+			Set<Action> grantedActions) throws ChannyException {
+		Role role = dao.getById(id);
+		if (role == null) {
+			throw new ChannyException(ErrorCode.OBJECT_EXISTED, String.format("角色%s不存在，请刷新后再试。", name));
+		}
+		if (!name.equals(role.getName()) && dao.getByName(name) != null) {
+			throw new ChannyException(ErrorCode.OBJECT_EXISTED, "角色已存在，请使用唯一的角色名称并重试");
+		}
+
+		role.setName(name);
+		role.setDescription(description);
+		role.setGrantedModules(grantedModules);
+		role.setGrantedPages(grantedPages);
+		role.setGrantedActions(grantedActions);
+		dao.update(role);
 	}
 
 	public Role getById(long id) {
@@ -86,10 +104,13 @@ public class RoleService implements ServiceInterface<Role> {
 			obj.put("id", role.getId());
 			int count = dao.getCountByRole(role);
 			obj.put("count", count);
-			if (role.getName().equals("超级用户") || count > 0) {
-				obj.put("editable", false);
+			if (role.getName().equals("超级用户")) {
+				continue;
+			}
+			if (count > 0) {
+				obj.put("removable", false);
 			} else {
-				obj.put("editable", true);
+				obj.put("removable", true);
 			}
 			obj.put("name", role.getName());
 			obj.put("description", role.getDescription());
@@ -101,7 +122,7 @@ public class RoleService implements ServiceInterface<Role> {
 
 		return data;
 	}
-	
+
 	public Role addClient() {
 		return dao.addClient();
 	}
@@ -125,7 +146,7 @@ public class RoleService implements ServiceInterface<Role> {
 
 		return obj;
 	}
-	
+
 	public Role getByName(String name) {
 		return dao.getByName(name);
 	}
@@ -163,9 +184,9 @@ public class RoleService implements ServiceInterface<Role> {
 	public static void main(String[] args) throws ChannyException, JSONException {
 		RoleService service = new RoleService();
 		service.importRoles();
-//		Role role = service.getById(1);
-//		for (Module module : role.getGrantedModules()) {
-//			System.out.println(module.getDescription());
-//		}
+		// Role role = service.getById(1);
+		// for (Module module : role.getGrantedModules()) {
+		// System.out.println(module.getDescription());
+		// }
 	}
 }

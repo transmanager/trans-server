@@ -1,7 +1,7 @@
 <%@page import="channy.transmanager.shaobao.model.order.OrderType"%>
 <%@page import="channy.transmanager.shaobao.data.user.UserDao"%>
 <%@page import="channy.transmanager.shaobao.feature.Action"%>
-<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@page language="java" import="java.util.*" pageEncoding="UTF-8"%>
 <% 
 String dialogId = request.getParameter("dialogId");
 %>

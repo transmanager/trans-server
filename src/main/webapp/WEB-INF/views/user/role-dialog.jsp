@@ -1,3 +1,5 @@
+<%@page import="channy.transmanager.shaobao.model.user.Role"%>
+<%@page import="channy.transmanager.shaobao.service.user.RoleService"%>
 <%@page import="channy.transmanager.shaobao.feature.Action"%>
 <%@page import="channy.transmanager.shaobao.feature.Page"%>
 <%@page import="channy.transmanager.shaobao.feature.Module"%>
@@ -24,8 +26,6 @@ String dialog = request.getParameter("dialog");
 <!-- Optional theme -->
 <link rel="stylesheet" href="../resources/css/bootstrap-theme.min.css" />
 
-<link rel="stylesheet" href="../resources/css/style.css" />
-
 <!-- Latest compiled and minified JavaScript -->
 <script src="../resources/js/bootstrap.min.js"></script>
 
@@ -34,9 +34,14 @@ String dialog = request.getParameter("dialog");
 
 <script src="../resources/js/util.js"></script>
 
+<link rel="stylesheet" href="../resources/css/style.css" />
+
 <script type="text/javascript">
 	$(document).ready(function() {
 		initTree();
+		<%if(dialog.equals("edit")) {%>
+			$("#name").select();
+		<%}%>
 	});
 
 	function initTree() {
@@ -99,25 +104,90 @@ String dialog = request.getParameter("dialog");
 			}
 		});
 	}
+
+	function onEdit() {
+		if ($("#name").val() == "") {
+			showErrorDialog("请输入角色名称");
+			return;
+		}
+		var privileges = [];
+		var selected = $('#tree').jstree("get_selected", true);
+		if (selected.length == 0) {
+			showErrorDialog("请选择至少一项权限");
+			return;
+		}
+		$.each(selected, function() {
+			privileges.push(this.id);
+		});
+
+		$.ajax({
+			url : 'edit',
+			type : 'post',
+			data : {
+				action : '<%=Action.RoleEdit%>',
+				id : '<%=request.getParameter("role")%>',
+				name : $("#name").val(),
+				description : $("#description").val(),
+				privileges : privileges
+			},
+			beforeSend : function() {
+				$("#button_submit").text("处理中...");
+				$("#button_submit").addClass("disabled");
+			},
+			success : function (response) {
+				$("#button_submit").text("保存");
+				$("#button_submit").removeClass("disabled");
+				
+				if (response.msg != "成功") {
+					showErrorDialog(response.msg);
+					return;
+				}
+
+				closeDialog('<%=dialogId%>');
+				refresh('page_' + '<%=Action.RoleEdit.getParent()%>', <%=request.getParameter("page")%>);
+			},
+
+			error : function (jqXHR, textStatus, errorThrown) {
+				$("#button_submit").text("保存");
+				$("#button_submit").removeClass("disabled");
+				showErrorDialog(errorThrown);
+			}
+		});
+	}
 </script>
 
 </head>
 <body id="body">
-	<input id="name" type="text" class="form-control" placeholder="角色名称" autofocus/>
-	<input id="description" type="text" class="form-control" placeholder="描述"/>
+<%if(dialog.equals("add")) {%>
+	<div class="container">
+		<form class="form-horizontal" role="form">
+			<div class="form-group">
+				<label for="name" class="col-sm-2 control-label">角色名称</label>
+				<div class="col-sm-10">
+					<input id="name" type="text" class="form-control" placeholder="角色名称" autofocus/>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="description" class="col-sm-2 control-label">描述</label>
+				<div class="col-sm-10">
+					<input id="description" type="text" class="form-control" placeholder="描述"/>
+				</div>
+			</div>
+		</form>
+	</div>
 	
 	<div style="height: 200px; overflow-y: auto;" id="tree">
 	    <ul id="root">
 	    <% for (Module module : Module.values()) { %>
-	    	<li class="module" id="<%=module%>"><%=module.getDescription()%>
+	    	<li id="module_<%=module.toString()%>"><%=module.getDescription()%>
 	    		<ul>
 	    		<% for (Page p : Page.values()) { %>
 	    			<% if (p.getParent() != module) { continue; } %>
-	    			<li class="page" id="<%=p%>"><%=p.getDescription()%>
+	    			<li id="page_<%=p.toString()%>"><%=p.getDescription()%>
 	    				<ul>
 	    				<% for (Action action : Action.values()) { %>
 	    					<% if (action.getParent() != p) { continue; } %>
-		    				<li class="action" id="<%=action%>"><%=action.getDescription()%></li>
+		    				<li id="action_<%=action.toString()%>"><%=action.getDescription()%></li>
 	    				<% } %>
 	    				</ul>
 	    			</li>
@@ -128,7 +198,55 @@ String dialog = request.getParameter("dialog");
 	    </ul>
 	</div>
 	<div class="openWin_hr">
-		<button id="button_submit" type="button" title="保存" class="btn btn-success btn-xs f_r" onclick="onAdd()">保存</button>
+		<button id="button_submit" type="button" title="添加" class="btn btn-success btn-xs f_r" onclick="onAdd()">添加</button>
 	</div>
+<%} else if (dialog.equals("edit")) { %>
+<% 
+String r = request.getParameter("role");
+RoleService service = new RoleService();
+Role role = service.getById(Long.parseLong(r));
+%>
+	<div class="container">
+		<form class="form-horizontal" role="form">
+			<div class="form-group">
+				<label for="name" class="col-sm-2 control-label">角色名称</label>
+				<div class="col-sm-10">
+					<input id="name" type="text" class="form-control" placeholder="角色名称" autofocus value="<%=role.getName() %>" />
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="description" class="col-sm-2 control-label">描述</label>
+				<div class="col-sm-10">
+					<input id="description" type="text" class="form-control" placeholder="描述" value="<%=role.getDescription() %>"/>
+				</div>
+			</div>
+		</form>
+	</div>
+	
+	<div style="height: 200px; overflow-y: auto;" id="tree">
+	    <ul id="root">
+	    <% for (Module module : Module.values()) { %>
+	    	<li id="module_<%=module.toString()%>" data-jstree='{"opened":false}'><%=module.getDescription()%>
+	    		<ul>
+	    		<% for (Page p : Page.values()) { %>
+	    			<% if (p.getParent() != module) { continue; } %>
+	    			<li id="page_<%=p.toString()%>"><%=p.getDescription()%>
+	    				<ul>
+	    				<% for (Action action : Action.values()) { %>
+	    					<% if (action.getParent() != p) { continue; } %>
+		    				<li id="action_<%=action.toString()%>" <%if (role.getGrantedActions().contains(action)) { %> data-jstree='{"selected":true}' <%} %>><%=action.getDescription()%></li>
+	    				<% } %>
+	    				</ul>
+	    			</li>
+	    		<% } %>
+	    		</ul>
+	    	</li>
+	    <% } %>
+	    </ul>
+	</div>
+	<div class="openWin_hr">
+		<button id="button_submit" type="button" title="保存" class="btn btn-success btn-xs f_r" onclick="onEdit()">保存</button>
+	</div>
+<%} %>
 </body>
 </html>

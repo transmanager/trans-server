@@ -113,7 +113,7 @@
 
 					for (var i = 0; i < r.length; i++) {
 						var id = r[i].id;
-						var editable = r[i].editable;
+						var removable = r[i].removable;
 						var name = r[i].name;
 						var dateCreated = r[i].dateCreated;
 						var description = r[i].description;
@@ -126,14 +126,13 @@
 						row += '<td>' + description + '</td>';
 						row += '<td>' + '<button title="详情" class="row_button btn btn-default btn-xs"><span class="glyphicon glyphicon-info-sign"></span></button>';
 
-						if (editable) {
-							row += '<button class="row_button btn btn-default btn-xs" title="编辑 ' + name + '" onclick="onEdit(\'' + id + '\', \'' + name + '\')"><span class="glyphicon glyphicon-edit"></span></button>';
+						
+						row += '<button class="row_button btn btn-default btn-xs" title="编辑 ' + name + '" onclick="onEdit(\'' + id + '\', \'' + name + '\')"><span class="glyphicon glyphicon-edit"></span></button>';
+						if (removable) {
 							row += '<button class="row_button btn btn-danger btn-xs" title="删除 ' + name + '" onclick="onRemove(' + id + ')"><span class="glyphicon glyphicon-trash"></span></button>';
-							row += '</td>';
-							row += '<td style="text-align: center; padding-right: 0px;"><input type="checkbox" value="' + id + '" name="selected" id="checkbox_' + id + '" /></td>';
-						} else {
-							row += '</td><td></td>';
 						}
+						row += '</td>';
+						row += '<td style="text-align: center; padding-right: 0px;"><input type="checkbox" value="' + id + '" name="selected" id="checkbox_' + id + '" /></td>';
 						row += '</tr>';
 						$("#table tbody").append(row);
 					}
@@ -199,7 +198,11 @@
 	});
 
 	function onAdd() {
-		showDialog("role/dialog", "添加角色", true, "dialog-lg");
+		showDialog("role/dialog?dialog=add", "添加角色", true, "dialog-lg");
+	}
+
+	function onEdit(id, name) {
+		showDialog("role/dialog?dialog=edit&role=" + id + "&page=" + currentPage, "编辑角色" + name, true, "dialog-lg");
 	}
 
 	function onRemove(id) {

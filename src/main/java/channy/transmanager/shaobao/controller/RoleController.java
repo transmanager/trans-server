@@ -106,6 +106,12 @@ public class RoleController {
 		Set<Action> actions = new HashSet<Action>();
 		for (String privilege : privileges) {
 			try {
+				int i = privilege.indexOf("action_");
+				if (i == -1) {
+					continue;
+				}
+
+				privilege = privilege.substring(i + "action_".length());
 				Action a = Action.valueOf(privilege);
 				actions.add(a);
 				Page page = a.getParent();
@@ -122,6 +128,52 @@ public class RoleController {
 		}
 		JSONObject data = roleService.add(name, description, modules, pages, actions, true);
 		return new JsonResponse(ErrorCode.OK, data).generate();
+	}
+
+	@RequestMapping(value = "/role/edit", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
+	public @ResponseBody String edit(@RequestParam("action") String action, @RequestParam("id") String id, @RequestParam("name") String name,
+			HttpServletRequest request) throws ChannyException, JSONException {
+		if (Action.valueOf(Action.class, action) != Action.RoleEdit) {
+			return new JsonResponse(ErrorCode.BAD_REQUEST_CODE).generate();
+		}
+
+		String description = null;
+		if (request.getParameter("description") != null) {
+			description = request.getParameter("description");
+		}
+
+		String[] privileges = request.getParameterValues("privileges[]");
+		if (privileges == null) {
+			return new JsonResponse(ErrorCode.BAD_ARGUMENT, "无效的权限列表").generate();
+		}
+
+		Set<Module> modules = new HashSet<Module>();
+		Set<Page> pages = new HashSet<Page>();
+		Set<Action> actions = new HashSet<Action>();
+		for (String privilege : privileges) {
+			try {
+				int i = privilege.indexOf("action_");
+				if (i == -1) {
+					continue;
+				}
+
+				privilege = privilege.substring(i + "action_".length());
+				Action a = Action.valueOf(privilege);
+				actions.add(a);
+				Page page = a.getParent();
+				if (page != null) {
+					pages.add(a.getParent());
+					Module module = page.getParent();
+					if (module != null) {
+						modules.add(module);
+					}
+				}
+			} catch (IllegalArgumentException e) {
+				continue;
+			}
+		}
+		roleService.edit(Long.parseLong(id), name, description, modules, pages, actions);
+		return new JsonResponse(ErrorCode.OK).generate();
 	}
 
 	@RequestMapping(value = "/role/remove", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
