@@ -21,6 +21,8 @@ import channy.transmanager.shaobao.data.TokenDao;
 import channy.transmanager.shaobao.model.Token;
 import channy.transmanager.shaobao.model.user.User;
 import channy.transmanager.shaobao.service.user.UserService;
+import channy.util.ChannyException;
+import channy.util.ErrorCode;
 import channy.util.JsonResponse;
 
 public class AccessControl implements Filter {
@@ -57,11 +59,20 @@ public class AccessControl implements Filter {
 			chain.doFilter(req, resp);
 			//System.out.println(wrapper.toString());
 		} catch (Exception e) {
+			int index = e.getMessage().indexOf("nested exception is");
+			String message = e.getMessage();
+			if (index > -1) {
+				message = message.substring(index + "nested exception is".length());
+				index = message.indexOf(":");
+				if (index > -1) {
+					message = message.substring(index + 1);
+				}
+			}
 			if (isAjax(request)) {
 				resp.setContentType("application/json");
-				resp.getWriter().write(new JsonResponse(e.getMessage()).generate());
+				resp.getWriter().write(new JsonResponse(message).generate());
 			} else {
-				resp.getWriter().write(e.getLocalizedMessage());
+				resp.getWriter().write(message);
 			}
 			e.printStackTrace();
 		}
@@ -138,7 +149,7 @@ public class AccessControl implements Filter {
 		return false;
 	}
 
-	private void touch(HttpServletRequest request) {
+	private void touch(HttpServletRequest request) throws ChannyException {
 		UserService userService = new UserService();
 //		@SuppressWarnings("unchecked")
 //		Map<String, String> params = request.getParameterMap();
@@ -148,15 +159,15 @@ public class AccessControl implements Filter {
 		
 		String id = request.getParameter("employeeId");
 		if (id == null) {
-			return;
+			throw new ChannyException(ErrorCode.BAD_ARGUMENT, "无效的员工ID");
 		}
 		User user = userService.getByEmployeeId(id);
 		if (user == null) {
-			return;
+			throw new ChannyException(ErrorCode.USER_NOT_EXISTED);
 		}
 		Token token = TokenDao.getByUser(user);
 		if (token == null) {
-			return;
+			throw new ChannyException(ErrorCode.UNAUTHORIZED);
 		}
 		Calendar calendar = Calendar.getInstance();
 		calendar.add(Calendar.SECOND, 120);
