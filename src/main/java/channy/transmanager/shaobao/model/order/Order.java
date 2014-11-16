@@ -20,6 +20,7 @@ import channy.transmanager.shaobao.model.Abnormality;
 import channy.transmanager.shaobao.model.BaseEntity;
 import channy.transmanager.shaobao.model.Cargo;
 import channy.transmanager.shaobao.model.Expenses;
+import channy.transmanager.shaobao.model.Fine;
 import channy.transmanager.shaobao.model.Place;
 import channy.transmanager.shaobao.model.Image;
 import channy.transmanager.shaobao.model.Ore;
@@ -125,6 +126,11 @@ public class Order extends BaseEntity {
 	@Cascade(value = {CascadeType.SAVE_UPDATE})
 	@JoinColumn(name = "order_id")
 	private List<Expenses> expenses;
+	
+	@OneToMany(fetch = FetchType.LAZY)
+	@Cascade(value = {CascadeType.SAVE_UPDATE})
+	@JoinColumn(name = "order_id")
+	private List<Fine> fines;
 	
 	@OneToMany(fetch = FetchType.LAZY)
 	@Cascade(value = {CascadeType.SAVE_UPDATE})
@@ -460,6 +466,12 @@ public class Order extends BaseEntity {
 	}
 	public void setFuelUsed(double fuelUsed) {
 		this.fuelUsed = fuelUsed;
+	}
+	public List<Fine> getFines() {
+		return fines;
+	}
+	public void setFines(List<Fine> fines) {
+		this.fines = fines;
 	}
 	
 }

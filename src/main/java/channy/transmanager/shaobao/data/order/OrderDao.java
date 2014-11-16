@@ -11,6 +11,7 @@ import channy.transmanager.shaobao.data.BaseDao;
 import channy.transmanager.shaobao.data.QueryResult;
 import channy.transmanager.shaobao.model.Cargo;
 import channy.transmanager.shaobao.model.Expenses;
+import channy.transmanager.shaobao.model.Fine;
 import channy.transmanager.shaobao.model.Image;
 import channy.transmanager.shaobao.model.Ore;
 import channy.transmanager.shaobao.model.Place;
@@ -224,7 +225,8 @@ public class OrderDao extends BaseDao<Order> {
 	public Order makeup(Motorcade motorcade, Driver driver, Truck truck, Client client, OrderType type, String dId, List<String> cIds,
 			List<Image> image, List<Cargo> cargo, Place cargoSource, Place cargoDestination, Date dateDeparted, Date dateArrived, String oId,
 			Ore ore, Place oreSource, Place oreDestination, Date dateReturn, Date dateReturned, double finalCargoWeight, double oreWeight,
-			double finalOreWeight, double odometerStart, double odometerEnd, List<Expenses> expenses, List<Toll> tolls, double fuelUsed) {
+			double finalOreWeight, double odometerStart, double odometerEnd, List<Expenses> expenses, List<Fine> fines, List<Toll> tolls,
+			double fuelUsed) {
 		Order order = new Order();
 		order.setOrderType(type);
 		order.setClient(client);
@@ -272,6 +274,7 @@ public class OrderDao extends BaseDao<Order> {
 		order.setOdometerEnd(odometerEnd);
 		order.setDistance(odometerEnd - odometerStart);
 
+		order.setFines(fines);
 		order.setExpenses(expenses);
 		order.setTolls(tolls);
 
@@ -314,6 +317,9 @@ public class OrderDao extends BaseDao<Order> {
 	}
 
 	public Order getDetailById(long id) {
+		if (!exists(id)) {
+			return null;
+		}
 		Session session = HibernateUtil.getCurrentSession();
 		try {
 			session.beginTransaction();

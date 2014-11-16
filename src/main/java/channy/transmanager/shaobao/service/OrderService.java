@@ -14,6 +14,7 @@ import channy.transmanager.shaobao.data.QueryResult;
 import channy.transmanager.shaobao.data.order.OrderDao;
 import channy.transmanager.shaobao.model.Cargo;
 import channy.transmanager.shaobao.model.Expenses;
+import channy.transmanager.shaobao.model.Fine;
 import channy.transmanager.shaobao.model.Image;
 import channy.transmanager.shaobao.model.Ore;
 import channy.transmanager.shaobao.model.Place;
@@ -35,7 +36,7 @@ import channy.util.ErrorCode;
 
 public class OrderService implements ServiceInterface<Order> {
 	private OrderDao dao = new OrderDao();
-	
+
 	public Order getById(long id) {
 		return dao.getById(id);
 	}
@@ -44,32 +45,26 @@ public class OrderService implements ServiceInterface<Order> {
 		return null;
 	}
 
-	
 	public void update(Order entity) {
 		dao.update(entity);
 	}
 
-	
 	public void remove(Order entity) {
 		dao.remove(entity);
 	}
 
-	
 	public void removeById(long id) throws ChannyException {
 		dao.removeById(id);
 	}
 
-	
 	public boolean exists(long id) {
 		return dao.exists(id);
 	}
 
-	
 	public int getCount() throws ChannyException {
 		return dao.getCount(null);
 	}
 
-	
 	public JSONObject query(int page, int pageSize, Map<String, Object> filter) throws ChannyException, JSONException {
 		QueryResult<Order> orders = dao.query(page, pageSize, filter);
 
@@ -138,7 +133,6 @@ public class OrderService implements ServiceInterface<Order> {
 		return result;
 	}
 
-	
 	public JSONObject select(int page, int pageSize, Map<String, Object> filter) throws ChannyException, JSONException {
 		// TODO Auto-generated method stub
 		return null;
@@ -155,7 +149,7 @@ public class OrderService implements ServiceInterface<Order> {
 
 		return data;
 	}
-	
+
 	public JSONObject scheduleClientOrder(Motorcade motorcade, Driver driver, Truck truck, Client client, OrderType type, User scheduler)
 			throws ChannyException, JSONException {
 		dao.schedule(motorcade, driver, truck, client, type, null, null, null, null, null, null, null, null, null, scheduler);
@@ -170,11 +164,11 @@ public class OrderService implements ServiceInterface<Order> {
 	public JSONObject makeup(Motorcade motorcade, Driver driver, Truck truck, Client client, OrderType type, String dId, List<String> cIds,
 			List<Image> image, List<Cargo> cargo, Place cargoSource, Place cargoDestination, Date dateDeparted, Date dateArrived, String oId,
 			Ore ore, Place oreSource, Place oreDestination, Date dateReturn, Date dateReturned, double finalCargoWeight, double oreWeight,
-			double finalOreWeight, double odometerStart, double odometerEnd, List<Expenses> expenses, List<Toll> tolls, double fuelUsed)
+			double finalOreWeight, double odometerStart, double odometerEnd, List<Expenses> expenses, List<Fine> fines, List<Toll> tolls, double fuelUsed)
 			throws ChannyException, JSONException {
 		dao.makeup(motorcade, driver, truck, client, type, dId, cIds, image, cargo, cargoSource, cargoDestination, dateDeparted, dateArrived, oId,
 				ore, oreSource, oreDestination, dateReturn, dateReturned, finalCargoWeight, oreWeight, finalOreWeight, odometerStart, odometerEnd,
-				expenses, tolls, fuelUsed);
+				expenses, fines, tolls, fuelUsed);
 		int total = getCount();
 		int page = (total - 1) / 15;
 		JSONObject data = new JSONObject();
@@ -182,7 +176,7 @@ public class OrderService implements ServiceInterface<Order> {
 
 		return data;
 	}
-	
+
 	public JSONObject updateStatus(Order order) throws JSONException {
 		Driver driver = order.getDriver();
 		Truck truck = order.getTruck();
@@ -244,6 +238,15 @@ public class OrderService implements ServiceInterface<Order> {
 			truck.setStatus(TruckStatus.Idle);
 			// TruckDao.update(truck);
 			break;
+		case CargoVerificationFailed:
+			status = OrderStatus.CargoVerificationPending;
+			break;
+		case ExpensesVerificationFailed:
+			status = OrderStatus.ExpensesVerificationPending;
+			break;
+		case NotClear:
+			status = OrderStatus.ClearancePending;
+			break;
 		default:
 			update = false;
 			break;
@@ -258,22 +261,22 @@ public class OrderService implements ServiceInterface<Order> {
 		data.put("status", status.getDesciption());
 		return data;
 	}
-	
+
 	public JSONObject scheduleTruckDriver() throws JSONException, ChannyException {
 		TruckService truckService = new TruckService();
 		Truck truck = truckService.getNextCandidate();
-		
+
 		if (truck == null) {
 			throw new ChannyException(ErrorCode.GENERIC_ERROR, "暂无空闲车辆");
 		}
 
 		DriverService driverService = new DriverService();
 		Driver driver = driverService.getNextCandidate();
-		
+
 		if (driver == null) {
 			throw new ChannyException(ErrorCode.GENERIC_ERROR, "暂无空闲驾驶员");
 		}
-		
+
 		JSONObject data = new JSONObject();
 		JSONObject motorcade = new JSONObject();
 		motorcade.put("id", truck.getMotorcade().getId());
@@ -284,44 +287,93 @@ public class OrderService implements ServiceInterface<Order> {
 		t.put("id", truck.getId());
 		t.put("text", truck.getPlate());
 		data.put("truck", t);
-		
+
 		JSONObject d = new JSONObject();
 		d.put("id", driver.getId());
 		d.put("text", driver.getName());
 		data.put("driver", d);
-		
+
 		return data;
 	}
-	
+
 	public Order getDetailById(long id) {
 		return dao.getDetailById(id);
 	}
-	
+
 	public Order getDetailById(long id, Session session) {
 		return dao.getDetailById(id, session);
 	}
 
 	public void removeExpired(List<Image> images) {
-//		if (images == null) {
-//			return;
-//		}
-//
-//		List<Image> toRemove = new ArrayList<Image>();
-//		for (Image image : images) {
-//			if (image.getLastModified() == null) {
-//				//toRemove.add(image);
-//				continue;
-//			}
-//			
-//			long delta = new Date().getTime() - image.getLastModified().getTime();
-//			System.out.println(delta);
-//			if (delta > 1800000) {
-//				toRemove.add(image);
-//			}
-//		}
-//
-//		for (Image image : toRemove) {
-//			images.remove(image);
-//		}
+		// if (images == null) {
+		// return;
+		// }
+		//
+		// List<Image> toRemove = new ArrayList<Image>();
+		// for (Image image : images) {
+		// if (image.getLastModified() == null) {
+		// //toRemove.add(image);
+		// continue;
+		// }
+		//
+		// long delta = new Date().getTime() -
+		// image.getLastModified().getTime();
+		// System.out.println(delta);
+		// if (delta > 1800000) {
+		// toRemove.add(image);
+		// }
+		// }
+		//
+		// for (Image image : toRemove) {
+		// images.remove(image);
+		// }
+	}
+
+	public void verify(long id, User verifier) throws ChannyException {
+		Order order = dao.getById(id);
+		if (order == null) {
+			throw new ChannyException(ErrorCode.OBJECT_NOT_EXISTED, "运单不存在");
+		}
+
+		if (order.getStatus() == OrderStatus.CargoVerificationPending || order.getStatus() == OrderStatus.CargoVerificationFailed) {
+			order.setStatus(OrderStatus.ExpensesVerificationPending);
+			order.setCargoVerifiedBy(verifier);
+			order.setCargoVerified(true);
+		} else if (order.getStatus() == OrderStatus.ExpensesVerificationPending || order.getStatus() == OrderStatus.ExpensesVerificationFailed) {
+			order.setStatus(OrderStatus.ClearancePending);
+			order.setExpensesVerifiedBy(verifier);
+			order.setExpensesVerified(true);
+		} else if (order.getStatus() == OrderStatus.ClearancePending || order.getStatus() == OrderStatus.NotClear) {
+			order.setStatus(OrderStatus.Closed);
+			order.setVerifiedBy(verifier);
+		} else {
+			throw new ChannyException(ErrorCode.BAD_ARGUMENT, "当前运单状态不允许此操作");
+		}
+		dao.update(order);
+	}
+
+	public void reject(long id, String reason, User verifier) throws ChannyException {
+		Order order = dao.getById(id);
+		if (order == null) {
+			throw new ChannyException(ErrorCode.OBJECT_NOT_EXISTED, "运单不存在");
+		}
+
+		if (order.getStatus() == OrderStatus.CargoVerificationPending) {
+			order.setStatus(OrderStatus.CargoVerificationFailed);
+			order.setCargoVerifiedBy(verifier);
+			order.setCargoVerified(false);
+		} else if (order.getStatus() == OrderStatus.ExpensesVerificationPending) {
+			order.setStatus(OrderStatus.ExpensesVerificationFailed);
+			order.setExpensesVerified(false);
+			order.setExpensesVerifiedBy(verifier);
+		} else if (order.getStatus() == OrderStatus.ClearancePending) {
+			order.setStatus(OrderStatus.NotClear);
+			order.setVerifiedBy(verifier);
+		} else {
+			throw new ChannyException(ErrorCode.BAD_ARGUMENT, "当前运单状态不允许此操作");
+		}
+
+		order.setDescription(reason);
+		dao.update(order);
 	}
 }

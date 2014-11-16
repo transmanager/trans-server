@@ -29,6 +29,7 @@ import org.xml.sax.SAXException;
 import channy.transmanager.shaobao.feature.Action;
 import channy.transmanager.shaobao.model.Cargo;
 import channy.transmanager.shaobao.model.Expenses;
+import channy.transmanager.shaobao.model.Fine;
 import channy.transmanager.shaobao.model.Image;
 import channy.transmanager.shaobao.model.Ore;
 import channy.transmanager.shaobao.model.Place;
@@ -788,24 +789,25 @@ public class OrderController {
 		 * Expenses information
 		 */
 		List<Expenses> expenses = null;
+		List<Fine> fines = null;
 		tmp = request.getParameter("expensesInfo");
 		if (tmp != null) {
 			JSONObject expensesInfo = new JSONObject(tmp);
-			expenses = new ArrayList<Expenses>();
 			if (expensesInfo.has("fine")) {
-				JSONArray fines = expensesInfo.getJSONArray("fine");
-				for (int i = 0; i < fines.length(); i++) {
-					JSONObject obj = fines.getJSONObject(i);
-					Expenses fine = new Expenses();
-					fine.setType("罚单");
+				fines = new ArrayList<Fine>();
+				JSONArray f = expensesInfo.getJSONArray("fine");
+				for (int i = 0; i < f.length(); i++) {
+					JSONObject obj = f.getJSONObject(i);
+					Fine fine = new Fine();
 					fine.setDescription(obj.getString("description"));
 					fine.setAmount(obj.getDouble("amount"));
 
-					expenses.add(fine);
+					fines.add(fine);
 				}
 			}
 
 			if (expensesInfo.has("otherExpenses")) {
+				expenses = new ArrayList<Expenses>();
 				JSONArray otherExpenses = expensesInfo.getJSONArray("otherExpenses");
 				for (int i = 0; i < otherExpenses.length(); i++) {
 					JSONObject obj = otherExpenses.getJSONObject(i);
@@ -842,7 +844,7 @@ public class OrderController {
 
 		orderService.makeup(motorcade, driver, truck, client, type, dId, cIds, cImage, cargo, cargoSource, cargoDestination, dateDeparted,
 				dateArrived, oId, ore, oreSource, oreDestination, dateReturn, dateReturned, finalCargoWeight, oreWeight, finalOreWeight,
-				odometerStart, odometerEnd, expenses, tolls, fuelUsed);
+				odometerStart, odometerEnd, expenses, fines, tolls, fuelUsed);
 		return new JsonResponse(ErrorCode.OK).generate();
 	}
 
@@ -1063,5 +1065,26 @@ public class OrderController {
 	@RequestMapping(value = "/order/detail", method = RequestMethod.GET)
 	public String detail() {
 		return "order/detail";
+	}
+
+	@RequestMapping(value = "/order/verify", method = RequestMethod.GET)
+	public String verify() {
+		return "order/verify";
+	}
+
+	@RequestMapping(value = "/order/verify", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
+	public @ResponseBody String verify(@RequestParam("action") String action, HttpServletRequest request, @RequestParam("orderId") String orderId)
+			throws NumberFormatException, ChannyException {
+		User verifier = (User) request.getSession().getAttribute("currentUser");
+		orderService.verify(Long.parseLong(orderId), verifier);
+		return new JsonResponse(ErrorCode.OK).generate();
+	}
+
+	@RequestMapping(value = "/order/reject", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
+	public @ResponseBody String reject(@RequestParam("action") String action, HttpServletRequest request, @RequestParam("id") String id,
+			@RequestParam("reason") String reason) throws NumberFormatException, ChannyException {
+		User verifier = (User) request.getSession().getAttribute("currentUser");
+		orderService.reject(Long.parseLong(id), reason, verifier);
+		return new JsonResponse(ErrorCode.OK).generate();
 	}
 }
