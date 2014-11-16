@@ -130,11 +130,13 @@
 					var label = 'label-default';
 					var row = '<tr id="order_' + id + '">';
 					row += '<td>';
-					if (status == '异常') {
+					if (status == '异常' || status.indexOf('失败') > -1) {
 						label = 'label-danger';
 					} else if (status == '已完成') {
 						label = 'label-success';
-					} else if (status == '等待货运审核' || status == '等待运费审核' || status == '等待结算') {
+					} else if (status == '等待货运审核' || status == '等待运费审核') {
+						label = 'label-primary';
+					} else if (status == '等待结算') {
 						label = 'label-warning';
 					}
 
@@ -149,9 +151,13 @@
 					row += '<td>' + oId + '</td>';
 					row += '<td>' + dateDeparted + '</td>';
 					row += '<td>' + distance + '</td>';
-					row += '<td>' + '<button onclick="onShowDetail(' + id + ')" title="详情" class="row_button btn btn-default btn-xs"><span class="glyphicon glyphicon-info-sign"></span></button>';
+					row += '<td>';
+					row += '<button onclick="onShowDetail(' + id + ')" title="详情" class="row_button btn btn-default btn-xs"><span class="glyphicon glyphicon-info-sign"></span></button>';
+					if (status != '已完成' && status.indexOf('等待') != -1) {
+						row += '<button onclick="onVerify(' + id + ')" title="审核" class="row_button btn btn-default btn-xs"><span class="glyphicon glyphicon-check"></span></button>';
+					}
+					row += '</td>';
 					row += '<td style="text-align: center; padding-right: 0px;"><input type="checkbox" value="' + id + '" name="selected" id="checkbox_' + id + '" /></td>';
-
 					row += '</tr>';
 					$("#table tbody").append(row);
 				}
@@ -221,130 +227,11 @@
 	function onShowDetail(id) {
 		var url = 'order/detail?id=' + id + '&action=' + '<%=Action.OrderShowDetail%>';
 		showDialog(url, '运单详情', true, 'modal-lg');
-		<%-- $.ajax({
-			url: "order/detail",
-            type: "post",
-            data: {
-               	action: '<%=Action.OrderShowDetail%>',
-               	type : 'all',
-               	id : id,
-            },
-            beforeSend : function() {
-			},
-			success : function (response) {
-				if (response.msg != "成功") {
-					showErrorDialog(response.msg);
-					return;
-				}
+	}
 
-				var html = '<tr>';
-				html += '<td>车队：' + response.data.motorcade + '</td>';
-				html += '<td>车号：' + response.data.truck + '</td>';
-				html += '<td>驾驶员：' + response.data.driver + '</td>';
-				html += '<td>客户：' + response.data.client + '</td>';
-				html += '</tr>';
-				html += '<tr>';
-
-				html += '<td>类型：' + response.data.type + '</td>';
-				html += '</tr>';
-				html += '<tr>';
-				html += '<td>出发时间：' + response.data.dateDeparted + '</td>';
-				html += '<td>到站时间：' + response.data.dateArrived + '</td>';
-				html += '</tr>';
-				html += '<tr>';
-				html += '<td>回程时间：' + response.data.dateReturn + '</td>';
-				html += '<td>到达时间：' + response.data.dateReturned + '</td>';
-				html += '</tr>';
-				html += '<tr>';
-				html += '<td>里程表起：' + response.data.odometerStart + '千米</td>';
-				html += '<td>里程表止：' + response.data.odometerEnd + '千米</td>';
-				html += '<td>油耗：' + response.data.fuelUsed + '升</td>';
-				html += '</tr>';
-				html += '<tr>';
-				html += '<td colspan="4"><hr /></td>';
-				html += '</tr>';
-				html += '<tr>';
-
-				html += '<td>调运单号：' + response.data.dId + '</td>';
-				html += '<td>装车点：' + response.data.cargoSource + '</td>';
-				html += '<td>到站：' + response.data.cargoDestination + '</td>';
-				html += '</tr>';
-				/* html += '<tr>';
-				$("#cargoContainer").find('.cIdContainer').each(function(index, value) {
-					var cId = $(value).find("input").val();
-					html += '<td>出库单：' + cId + '</td>';
-					$(value).nextUntil('.cIdContainer').each(function(index2, value2) {
-						var name = $(value2).find(".product").select2('data').text;
-						var amount = $(value2).find("input:eq(2)").val();
-						var weight = $(value2).find("input:eq(3)").val();
-						if (index2 != 0) {
-							html += '<tr>';
-							html += '<td></td>';
-						}
-						html += '<td>货物：' + name + amount + '件，' + weight + '吨</td>';
-						html += '</tr>';
-					});
-				});
-				
-				html += '<tr>';
-				html += '<td colspan="4"><hr /></td>';
-				html += '</tr>';
-				html += '<tr>';
-				html += '<td>矿单号：' + $("#oId").val() + '</td>';
-				html += '<td>装车点：' + $("#oreSource").select2('data').text + '</td>';
-				html += '</tr>';
-				html += '<tr>';
-				html += '<td>矿物：' + $("#ore").select2('data').text + '</td>';
-				html += '<td>矿重：' + $("#oreWeight").val() + '吨</td>';
-				html += '<td>韶钢磅重：' + $("#oreFinalWeight").val() + '吨</td>';
-				html += '</tr>';
-				html += '<tr>';
-				html += '<td colspan="4"><hr /></td>';
-				html += '</tr>';
-				$(".toll").each(function(index, value) {
-					var entry = $(value).find('.tollstation:eq(0)').select2('data').text;
-					var exit = $(value).find('.tollstation:eq(2)').select2('data').text;
-					var toll = $(value).find('.amount').val();
-					
-					html += '<tr>';
-					html += '<td colspan="2">运费：' + entry + ' - ' + exit + '，￥' + toll;
-					if ($(value).find('input:checkbox').is(":checked")) {
-						html += '，载重';
-					} 
-					html += '</td>';
-					html += '</tr>';
-				});
-				
-				$('.fine').each(function(index, value) {
-					var amount = $(value).find("input:eq(1)").val();
-					var description = $(value).find("input:eq(0)").val();
-					if (amount == "") {
-						return false;
-					}
-					html += '<tr>';
-					html += '<td>罚单：' + description +'，￥' + amount + '</td>';
-					html += '</tr>';
-				});
-				$('.other-expenses').each(function(index, value) {
-					var amount = $(value).find("input:eq(1)").val();
-					var description = $(value).find("input:eq(0)").val();
-					if (amount == "") {
-						return false;
-					}
-					html += '<tr>';
-					html += '<td>其余费用：' + description + '，￥' + amount + '</td>';
-					html += '</tr>';
-				}); */
-				
-				$("#confirm .modal-body table").empty();
-				$("#confirm .modal-body table").append(html);
-				$("#confirm").modal();
-			},
-
-			error : function (jqXHR, textStatus, errorThrown) {
-				showErrorDialog(errorThrown);
-			}
-		}); --%>
+	function onVerify(id) {
+		var url = 'order/verify?id=' + id + '&action=' + '<%=Action.OrderUpdateStatus%>';
+		showDialog(url, '审核运单', true, 'modal-lg');
 	}
 </script>
 

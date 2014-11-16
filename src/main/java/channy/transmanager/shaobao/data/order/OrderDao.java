@@ -356,6 +356,10 @@ public class OrderDao extends BaseDao<Order> {
 				order.getAbnormalities().size();
 			}
 
+			if (order.getFines() != null) {
+				order.getFines().size();
+			}
+			
 			if (order.getExpenses() != null) {
 				order.getExpenses().size();
 			}

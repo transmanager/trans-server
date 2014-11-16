@@ -419,18 +419,20 @@ String dialogId = request.getParameter("dialogId");
 				$("#oreFinalWeight").focus();
 				return false;
 			}
-		} 
+		}
 
 		$(".toll").each(function(index, value) {
 			var toll = $(value).find('.amount');
 
 			if ($(value).find(".tollstation:eq(0)").select2('data') == null) {
 				$(value).find(".tollstation:eq(0)").select2('open');
+				flag = false;
 				return false;
 			}
 
 			if ($(value).find(".tollstation:eq(2)").select2('data') == null) {
 				$(value).find(".tollstation:eq(2)").select2('open');
+				flag = false;
 				return false;
 			}
 

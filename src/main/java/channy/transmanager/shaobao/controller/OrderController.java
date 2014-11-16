@@ -799,7 +799,7 @@ public class OrderController {
 				for (int i = 0; i < f.length(); i++) {
 					JSONObject obj = f.getJSONObject(i);
 					Fine fine = new Fine();
-					fine.setDescription(obj.getString("description"));
+					fine.setType(obj.getString("description"));
 					fine.setAmount(obj.getDouble("amount"));
 
 					fines.add(fine);
@@ -1073,10 +1073,10 @@ public class OrderController {
 	}
 
 	@RequestMapping(value = "/order/verify", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
-	public @ResponseBody String verify(@RequestParam("action") String action, HttpServletRequest request, @RequestParam("orderId") String orderId)
+	public @ResponseBody String verify(@RequestParam("action") String action, HttpServletRequest request, @RequestParam("id") String id)
 			throws NumberFormatException, ChannyException {
 		User verifier = (User) request.getSession().getAttribute("currentUser");
-		orderService.verify(Long.parseLong(orderId), verifier);
+		orderService.verify(Long.parseLong(id), verifier);
 		return new JsonResponse(ErrorCode.OK).generate();
 	}
 

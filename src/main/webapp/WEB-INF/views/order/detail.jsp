@@ -56,7 +56,15 @@ if (tmp == null) {%>
 			<%boolean flag = false; %>
 			<%for(OrderStatus status : OrderStatus.values()) { %>
 			<%String labelType = "label-success"; %>
-			<%if(status == OrderStatus.Exception) {continue;} %>
+			<%if (status.getDesciption().contains("失败")) {continue;} %>
+			<%if (status == OrderStatus.CargoVerificationPending && order.getStatus() == OrderStatus.CargoVerificationFailed) { %>
+			<span class="label label-danger" style="font-size: 13px;"><%=OrderStatus.CargoVerificationFailed.getDesciption()%></span>
+			<span class="glyphicon glyphicon-arrow-right"></span>
+			<%flag = true; continue;}%>
+			<%if (status == OrderStatus.ExpensesVerificationPending && order.getStatus() == OrderStatus.ExpensesVerificationFailed) { %>
+			<span class="label label-danger" style="font-size: 13px;"><%=OrderStatus.ExpensesVerificationFailed.getDesciption()%></span>
+			<span class="glyphicon glyphicon-arrow-right"></span>
+			<%flag = true; continue;}%>
 			<%if(order.getOrderType() == OrderType.CargoOnly && (status == OrderStatus.LoadingOre || status == OrderStatus.UnloadingOre || status == OrderStatus.WaitingOre)) {continue;} %>
 			<%if(order.getOrderType() == OrderType.OreOnly && (status == OrderStatus.LoadingCargo || status == OrderStatus.UnloadingCargo || status == OrderStatus.WaitingCargo)) {continue;} %>
 			<%if(flag) {labelType  = "label-default";} %>
