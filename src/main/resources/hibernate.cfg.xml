@@ -29,6 +29,7 @@
 		<mapping class="channy.transmanager.shaobao.model.Abnormality" />
 		<mapping class="channy.transmanager.shaobao.model.Cargo" />
 		<mapping class="channy.transmanager.shaobao.model.Expenses" />
+		<mapping class="channy.transmanager.shaobao.model.Fine" />
 		<mapping class="channy.transmanager.shaobao.model.Image" />
 		<mapping class="channy.transmanager.shaobao.model.Ore" />
 		<mapping class="channy.transmanager.shaobao.model.Place" />
