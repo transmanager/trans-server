@@ -13,8 +13,18 @@ public enum OrderStatus {
 	CargoVerificationPending("等待货运审核"),
 	ExpensesVerificationPending("等待运费审核"),
 	ClearancePending("等待结算"),
+
+	CargoVerificationFailed("货运审核失败"),
+	ExpensesVerificationFailed("运费审核失败"),
+	NotClear("结算失败"),
+	
+	/*
+	 * Add more states before 'Closed', or some pages may NOT
+	 * display correctly. 
+	 */
+	
+	////////////////////////////////////////////////////////////////////////
 	Closed("已完成"),
-	Exception("异常"),
 	;
 	
 	private OrderStatus(String desciption) {
