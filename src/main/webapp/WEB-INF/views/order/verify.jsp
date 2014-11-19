@@ -1,3 +1,4 @@
+<%@page import="com.sun.org.apache.xerces.internal.impl.dv.util.Base64"%>
 <%@page import="channy.transmanager.shaobao.model.Fine"%>
 <%@page import="channy.transmanager.shaobao.model.Product"%>
 <%@page import="channy.transmanager.shaobao.feature.Action"%>
@@ -21,7 +22,7 @@ String dialogId = request.getParameter("dialogId");
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <!-- <link rel="shortcut icon" href="../resources/images/MAnywhere.ico"/> -->
 <!-- jQuery -->
@@ -46,6 +47,9 @@ String dialogId = request.getParameter("dialogId");
 
 <script src="../resources/js/util.js"></script>
 
+<script src="../resources/js/jquery.mlens-1.5.min.js"></script>
+<style type="text/css">
+</style>
 </head>
 <body id="body">
 <%String tmp = request.getParameter("id");
@@ -107,6 +111,46 @@ if (order == null) {%>
 				<div class="col-xs-2" style="vertical-align: middle;">到站：</div>
 				<div class="col-xs-4"><input type="text" class="form-control place input-sm" placeholder="到站" id="cargoDestination" /></div>
 			</div>
+			<%if(order.getCargo() == null || order.getCargo().isEmpty()) { %>
+			<div class="row cid-row outbound" style="padding-top: 5px;">
+				<div class="col-xs-2">出库单：</div>
+				<div class="col-xs-5" style="padding-left: 5px; padding-right: 5px;"><input type="text" class="form-control input-sm" placeholder="出库单" /></div>
+				<div class="col-xs-3" style="padding-left: 5px; padding-right: 5px;">
+					<div class="btn-group btn-group-sm">
+						<button type="button" onclick="onAddCId(this)" class="btn btn-default">
+							<span class="glyphicon glyphicon-plus-sign"></span>
+						</button>
+						<button type="button" onclick="onRemoveCId(this)" class="btn btn-default">
+							<span class="glyphicon glyphicon-minus-sign"></span>
+						</button>
+					</div>
+				</div>
+			</div>
+			<div class="row product-row outbound" style="padding-top: 5px;">
+				<div class="col-xs-2 col-xs-offset-1" style="width:10%; padding-left: 5px; padding-right: 5px;">货物：</div>
+				<div class="col-xs-4" style="padding-left: 5px; padding-right: 5px;"><input type="text" class="form-control input-sm product" placeholder="名称"/></div>
+				<div class="col-xs-3" style="padding-left: 5px; padding-right: 5px; width: 16%;">
+					<div class="input-group input-group-sm">
+						<input type="text" class="form-control input-sm cargo-amount" placeholder="数量" style="text-align: right;" />
+						<span class="input-group-addon">件</span>
+					</div>
+				</div>
+				<div class="col-xs-3" style="padding-left: 5px; padding-right: 5px; width: 20%;">
+					<div class="input-group input-group-sm">
+						<input type="text" class="form-control input-sm cargo-weight" placeholder="重量" style="text-align: right;" />
+						<span class="input-group-addon">吨</span>
+					</div>
+				</div>
+				<div class="btn-group btn-group-sm">
+					<button type="button" onclick="onAddCargo(this)" class="btn btn-default">
+						<span class="glyphicon glyphicon-plus-sign"></span>
+					</button>
+					<button type="button" onclick="onRemoveCargo(this)" class="btn btn-default">
+						<span class="glyphicon glyphicon-minus-sign"></span>
+					</button>
+				</div>
+			</div>
+			<%} %>
 			<%String cid = "";%>
 			<%for (Cargo cargo : order.getCargo()) {%>
 			<%if(!cargo.getcId().equals(cid)) {%>
@@ -219,9 +263,9 @@ if (order == null) {%>
 			</div>
 			<div class="row inbound" style="padding-top: 5px;">
 				<div class="col-xs-2">矿重：</div>
-				<div class="col-xs-4"><input type="text" class="form-control input-sm" value="<%=order.getOreWeight()%>" /></div>
+				<div class="col-xs-4"><input id="oreWeight" type="text" class="form-control input-sm" value="<%=order.getOreWeight()%>" /></div>
 				<div class="col-xs-2">韶钢矿重：</div>
-				<div class="col-xs-4"><input type="text" class="form-control input-sm" value="<%=order.getFinalOreWeight()%>" /></div>
+				<div class="col-xs-4"><input id="oreFinalWeight" type="text" class="form-control input-sm" value="<%=order.getFinalOreWeight()%>" /></div>
 			</div>
 			<%} else {%>
 			<div class="row hr inbound"><hr /></div>
@@ -237,9 +281,9 @@ if (order == null) {%>
 			</div>
 			<div class="row inbound" style="padding-top: 5px;">
 				<div class="col-xs-2">矿重：</div>
-				<div class="col-xs-4"><input type="text" class="form-control input-sm" /></div>
+				<div class="col-xs-4"><input id="oreWeight" type="text" class="form-control input-sm" /></div>
 				<div class="col-xs-2">韶钢矿重：</div>
-				<div class="col-xs-4"><input type="text" class="form-control input-sm" /></div>
+				<div class="col-xs-4"><input id="oreFinalWeight" type="text" class="form-control input-sm" /></div>
 			</div>
 			<%} %>
 		<div>
@@ -253,13 +297,16 @@ if (order == null) {%>
 				<%} else { %>
 				<%for (Image image : order.getImage()) {%>
 					<%
-					if (image.getData() == null || /* !image.isReady() || */!image.getType().equals("货运信息")) {
+					if (image.getData() == null /* || !image.isReady() */ || (image.getType() != null && !image.getType().equals("货运信息"))) {
 						continue;
 					}
 					%>
 				<%String base64 = new String(image.getData());%>
-					<div class="thumbnail">
-						<img src="<%=base64%>" title="<%=image.getType()%>" />
+					<div class="thumbnail" id="img_<%=image.getId()%>" >
+						<img alt="" src="<%=base64%>"/>
+						<div class="caption">
+							<p><%if (image.getType() != null) { %><%=image.getType()%><%} %></p>
+						</div>
 					</div>
 				<%}}%>
 				</div>
@@ -350,7 +397,7 @@ if (order == null) {%>
 				<%} %>
 				<%if(order.getFines() != null) { %>
 					<hr />
-					<div class="row fine" <%if (!order.getExpenses().isEmpty()) { %> style="display: none;" <%} %>>
+					<div class="row fine" <%if (!order.getFines().isEmpty()) { %> style="display: none;" <%} %>>
 						<div class="col-xs-1" style="padding-left: 2px; padding-right: 2px; padding-top: 6px;">罚单：</div>
 						<div class="col-xs-2 btn-group btn-group-sm" style="padding-left: 2px; padding-right: 2px;">
 							<button type="button" onclick="onAddFine(this)" class="btn btn-default">
@@ -429,12 +476,12 @@ if (order == null) {%>
 				<%} else { %>
 				<%for (Image image : order.getImage()) {%>
 					<%
-					if (image.getData() == null || /* !image.isReady() || */!image.getType().equals("费用信息")) {
+					if (image.getData() == null /* || !image.isReady() */ || (image.getType() != null && !image.getType().equals("费用信息"))) {
 						continue;
 					}
 					%>
 				<%String base64 = new String(image.getData());%>
-					<div class="thumbnail">
+					<div class="thumbnail" id="img_<%=image.getId()%>">
 						<img src="<%=base64%>" title="<%=image.getType()%>" />
 					</div>
 				<%}}%>
@@ -758,6 +805,30 @@ if (order == null) {%>
 		<%}%>
 		<%}%>
 
+		<%if (order.getImage() != null) {%>
+		<%for (Image image : order.getImage()) {%>
+			var image_id = '<%=image.getId()%>';
+			var img = $("#img_" + image_id);
+			<% 
+			String data = new String(image.getData());
+			int index = data.indexOf("data:image/jpeg;base64,");
+			if (index != -1) {
+				data = data.substring(index + "data:image/jpeg;base64,".length());
+			}
+			%>
+			if (img.length != 0) {
+				img.popover({
+					placement : 'bottom',
+					html : true,
+					trigger : 'hover',
+					content : function() {
+						return '<img />';
+					},
+				});
+			}
+		<%}%>
+		<%}%>
+
 		$('input[name="type"]').change( function() {
 			if ($(this).val() == 'RoundTrip') {
 				$(".inbound").show();
@@ -948,14 +1019,126 @@ if (order == null) {%>
 			return;
 		}
 
-		return;
+		var type = $("#order-type .active input").val();
+		var data = {};
+		data.type = type;
+		data.motorcade = $("#motorcade").select2('data').text;
+		data.truck = $("#plate").select2('data').text;
+		data.driver = $("#driver").select2('data').id;
+		data.client = $("#client").select2('data').text;
+		
+		var cargoInfo = {};
+		if (type != 'OreOnly') {
+			if ($("#has_dId").is(":checked")) {
+				cargoInfo.dId = $("#dId").val();
+			}
+			cargoInfo.cargoSource = $("#cargoSource").select2('data').text;
+			cargoInfo.cargoDestination = $("#cargoDestination").select2('data').text;
+			cargoInfo.cargo = [];
+			$(".cid-row").each(function(index, value) {
+				var cargo = {};
+				var cId = $(value).find("input").val();
+				cargo.cId = cId;
+				var products = [];
+				$(value).nextUntil('.cid-row, .hr').each(function(index2, value2) {
+					var product = {};
+					var name = $(value2).find(".product").select2('data').text;
+					var amount = $(value2).find(".cargo-amount").val();
+					var weight = $(value2).find(".cargo-weight").val();
+					product.name = name;
+					product.amount = amount;
+					product.weight = weight;
+	
+					products.push(product);
+				});
+				cargo.products = products;
+				cargoInfo.cargo.push(cargo);
+			});
+
+			/* cargoInfo.images = [];
+			$("#outboundImageContainer").find("img").each(function (index, value){
+				cargoInfo.images.push($(value).attr('src'));
+			}); */
+			data.cargoInfo = cargoInfo;
+		}
+
+		var oreInfo = {};
+		if (type != 'CargoOnly') {
+			oreInfo.oId = $("#oId").val();
+			oreInfo.oreSource = $("#oreSource").select2('data').text;
+			oreInfo.ore = $("#ore").select2('data').text;
+			oreInfo.oreWeight = $("#oreWeight").val();
+			oreInfo.oreFinalWeight = $("#oreFinalWeight").val();
+
+			/* oreInfo.images = [];
+			$("#inboundImageContainer").find("img").each(function (index, value){
+				oreInfo.images.push($(value).attr('src'));
+			}); */
+
+			data.oreInfo = oreInfo;
+		}
+		
+
+		var toll = [];
+		$('.toll').each(function(index, value) {
+			var t = {};
+			t.entry = $(value).find(".tollstation:eq(0)").select2('data').text;
+			t.exit = $(value).find(".tollstation:eq(2)").select2('data').text;
+			t.amount = $(value).find(".toll-amount").val();
+			t.isLoading = false;
+			if ($(value).find(".active input").length > 0) {
+				t.isLoading = true;
+			}
+			toll.push(t);
+
+			data.tollInfo = toll;
+		});
+
+		var expensesInfo = {};
+		var fine = [];
+		$('.fine:gt(0)').each(function(index, value) {
+			var f = {};
+			var amount = $(value).find("input:eq(1)").val();
+			f.amount = amount;
+			f.type = $(value).find("input:eq(0)").val();
+
+			if (amount == '') {
+				return false;
+			}
+			fine.push(f);
+		});
+		if (fine.length > 0) {
+			data.fineInfo = fine;
+		}
+
+		var expenses = [];
+		$('.expenses:gt(0)').each(function(index, value) {
+			var e = {};
+			var amount = $(value).find("input:eq(1)").val();
+			e.amount = amount;
+			e.type = $(value).find("input:eq(0)").val();
+			
+			expenses.push(e);
+		});
+		if (expenses.length > 0) {
+			data.expensesInfo = expenses;
+		}
+		
+
+		/* expensesInfo.fine = fine;
+		expensesInfo.otherExpenses = expenses;
+		expensesInfo.images = [];
+		$("#expensesImageContainer").find("img").each(function (index, value){
+			expensesInfo.images.push($(value).attr('src'));
+		}); */
 
 		$.ajax({
 			url : 'verify',
 			type : 'post',
 			data : {
 				action : '<%=Action.OrderUpdateStatus%>',
-				id : '<%=request.getParameter("id")%>'
+				id : '<%=request.getParameter("id")%>',
+				data : JSON.stringify(data)
 			},
 			beforeSend : function() {
 			},
@@ -1354,6 +1537,10 @@ if (order == null) {%>
 		if ($('.expenses').length == 1) {
 			$('.expenses:first').show();
 		}
+	}
+
+	function zoom(id, data) {
+		
 	}
 </script>
 </body>

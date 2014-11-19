@@ -1074,9 +1074,14 @@ public class OrderController {
 
 	@RequestMapping(value = "/order/verify", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
 	public @ResponseBody String verify(@RequestParam("action") String action, HttpServletRequest request, @RequestParam("id") String id)
-			throws NumberFormatException, ChannyException {
+			throws NumberFormatException, ChannyException, JSONException {
+		JSONObject data = null;
+		if (request.getParameter("data") != null) {
+			data = new JSONObject(request.getParameter("data"));
+		}
+
 		User verifier = (User) request.getSession().getAttribute("currentUser");
-		orderService.verify(Long.parseLong(id), verifier);
+		orderService.verify(Long.parseLong(id), verifier, data);
 		return new JsonResponse(ErrorCode.OK).generate();
 	}
 

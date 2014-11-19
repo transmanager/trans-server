@@ -336,6 +336,11 @@ function toggleFilter() {
 	}
 }
 
+String.prototype.addSlashes = function() { 
+   //no need to do (str+'') anymore because 'this' can only be a string
+   return this.replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
+}
+
 // function showDialog(msg, title) {
 //	var dialog = window.top.$("#popup");
 //	if (title != 'undefined') {

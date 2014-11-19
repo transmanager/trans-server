@@ -153,7 +153,7 @@
 					row += '<td>' + distance + '</td>';
 					row += '<td>';
 					row += '<button onclick="onShowDetail(' + id + ')" title="详情" class="row_button btn btn-default btn-xs"><span class="glyphicon glyphicon-info-sign"></span></button>';
-					if (status != '已完成' && status.indexOf('等待') != -1) {
+					if (status != '已完成' && (status.indexOf('等待') != -1 || status.indexOf('失败') != -1)) {
 						row += '<button onclick="onVerify(' + id + ')" title="审核" class="row_button btn btn-default btn-xs"><span class="glyphicon glyphicon-check"></span></button>';
 					}
 					row += '</td>';
