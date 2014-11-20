@@ -1314,13 +1314,13 @@ if (order == null) {%>
 		html += '<div class="col-xs-4" style="padding-left: 5px; padding-right: 5px;"><input type="text" class="form-control input-sm product" placeholder="名称"/></div>';
 		html += '<div class="col-xs-3" style="padding-left: 5px; padding-right: 5px; width: 16%;">';
 		html += '<div class="input-group input-group-sm">';
-		html += '<input type="text" class="form-control input-sm" placeholder="数量" style="text-align: right;"/>';
+		html += '<input type="text" class="form-control input-sm cargo-amount" placeholder="数量" style="text-align: right;"/>';
 		html += '<span class="input-group-addon">件</span>';
 		html += '</div>';
 		html += '</div>';
 		html += '<div class="col-xs-3" style="padding-left: 5px; padding-right: 5px; width: 20%;">';
 		html += '<div class="input-group input-group-sm">';
-		html += '<input type="text" class="form-control input-sm" placeholder="重量" style="text-align: right;" />';
+		html += '<input type="text" class="form-control input-sm cargo-weight" placeholder="重量" style="text-align: right;" />';
 		html += '<span class="input-group-addon">吨</span>';
 		html += '</div>';
 		html += '</div>';
