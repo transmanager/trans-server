@@ -104,6 +104,11 @@ public class SystemController {
 	public String main() {
 		return "frames/main";
 	}
+	
+	@RequestMapping(value = "/system/home", method = RequestMethod.GET)
+	public String home() {
+		return "system/home";
+	}
 
 	@RequestMapping(value = "/system/vehicle", method = RequestMethod.GET)
 	public String vehicle() {
