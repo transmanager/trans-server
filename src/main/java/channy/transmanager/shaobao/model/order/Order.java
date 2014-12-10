@@ -169,6 +169,8 @@ public class Order extends BaseEntity {
 	@JoinColumn(name = "order_id")
 	private List<Toll> tolls;
 	
+	private boolean isSelfOrder = false;
+	
 	public String getoId() {
 		return oId;
 	}
@@ -472,6 +474,12 @@ public class Order extends BaseEntity {
 	}
 	public void setFines(List<Fine> fines) {
 		this.fines = fines;
+	}
+	public boolean isSelfOrder() {
+		return isSelfOrder;
+	}
+	public void setSelfOrder(boolean isSelfOrder) {
+		this.isSelfOrder = isSelfOrder;
 	}
 	
 }

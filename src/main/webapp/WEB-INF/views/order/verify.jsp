@@ -47,7 +47,6 @@ String dialogId = request.getParameter("dialogId");
 
 <script src="../resources/js/util.js"></script>
 
-<script src="../resources/js/jquery.mlens-1.5.min.js"></script>
 <style type="text/css">
 </style>
 </head>
@@ -317,7 +316,7 @@ if (order == null) {%>
 <%} else if (order.getStatus() == OrderStatus.ExpensesVerificationPending || order.getStatus() == OrderStatus.ExpensesVerificationFailed) { %>
 <div class="container-fluid" style="font-size: 12px;">
 	<div>
-		<h4>运费信息</h4>
+		<h4>出车费用</h4>
 		<hr />
 	</div>
 	<div class="row">

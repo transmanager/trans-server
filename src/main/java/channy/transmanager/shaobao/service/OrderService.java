@@ -147,7 +147,7 @@ public class OrderService implements ServiceInterface<Order> {
 	public JSONObject scheduleSelfOrder(Motorcade motorcade, Driver driver, Truck truck, Client client, OrderType type, String dId,
 			List<String> cIds, List<Image> image, List<Cargo> cargo, Place cargoSource, Place cargoDestination, String oId, Ore ore, Place oreSource,
 			User scheduler) throws ChannyException, JSONException {
-		dao.schedule(motorcade, driver, truck, client, type, dId, cIds, image, cargo, cargoSource, cargoDestination, oId, ore, oreSource, scheduler);
+		dao.schedule(motorcade, driver, truck, client, type, dId, cIds, image, cargo, cargoSource, cargoDestination, oId, ore, oreSource, scheduler, true);
 		int total = getCount();
 		int page = (total - 1) / 15;
 		JSONObject data = new JSONObject();
@@ -158,7 +158,7 @@ public class OrderService implements ServiceInterface<Order> {
 
 	public JSONObject scheduleClientOrder(Motorcade motorcade, Driver driver, Truck truck, Client client, OrderType type, User scheduler)
 			throws ChannyException, JSONException {
-		dao.schedule(motorcade, driver, truck, client, type, null, null, null, null, null, null, null, null, null, scheduler);
+		dao.schedule(motorcade, driver, truck, client, type, null, null, null, null, null, null, null, null, null, scheduler, false);
 		int total = getCount();
 		int page = (total - 1) / 15;
 		JSONObject data = new JSONObject();
@@ -191,14 +191,18 @@ public class OrderService implements ServiceInterface<Order> {
 		switch (status) {
 		case New:
 			if (order.getOrderType() == OrderType.OreOnly) {
-				status = OrderStatus.Outbound;
+				status = OrderStatus.ReadyToDepart;
 			} else {
 				status = OrderStatus.WaitingCargo;
 			}
+			break;
 		case WaitingCargo:
 			status = OrderStatus.LoadingCargo;
 			break;
 		case LoadingCargo:
+			status = OrderStatus.ReadyToDepart;
+			break;
+		case ReadyToDepart:
 			status = OrderStatus.Outbound;
 			order.setDateDeparted(new Date());
 			break;
@@ -206,22 +210,31 @@ public class OrderService implements ServiceInterface<Order> {
 			if (order.getOrderType() == OrderType.OreOnly) {
 				status = OrderStatus.WaitingOre;
 			} else {
-				status = OrderStatus.UnloadingCargo;
+				status = OrderStatus.ReadyToUnloadCargo;
 			}
 			order.setDateArrived(new Date());
 			break;
+		case ReadyToUnloadCargo:
+			status = OrderStatus.UnloadingCargo;
+			break;
 		case UnloadingCargo:
 			if (order.getOrderType() == OrderType.CargoOnly) {
-				status = OrderStatus.Inbound;
+				status = OrderStatus.ReadyToReturn;
 				order.setDateReturn(new Date());
 			} else {
-				status = OrderStatus.WaitingOre;
+				status = OrderStatus.CargoUnloaded;
 			}
+			break;
+		case CargoUnloaded:
+			status = OrderStatus.WaitingOre;
 			break;
 		case WaitingOre:
 			status = OrderStatus.LoadingOre;
 			break;
 		case LoadingOre:
+			status = OrderStatus.ReadyToReturn;
+			break;
+		case ReadyToReturn:
 			status = OrderStatus.Inbound;
 			order.setDateReturn(new Date());
 			break;
@@ -233,9 +246,12 @@ public class OrderService implements ServiceInterface<Order> {
 				truck.setStatus(TruckStatus.Idle);
 				// TruckDao.update(truck);
 			} else {
-				status = OrderStatus.UnloadingOre;
+				status = OrderStatus.ReadyToUnloadOre;
 			}
 			order.setDateReturned(new Date());
+			break;
+		case ReadyToUnloadOre:
+			status = OrderStatus.UnloadingOre;
 			break;
 		case UnloadingOre:
 			status = OrderStatus.CargoVerificationPending;

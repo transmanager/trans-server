@@ -27,6 +27,7 @@ public class DriverService extends UserService {
 			obj.put("client", order.getClient().getName());
 			obj.put("truck", order.getTruck().getPlate());
 			obj.put("status", order.getStatus().getDesciption());
+			obj.put("isSelfOrder", order.isSelfOrder());
 
 			if (order.getdId() == null) {
 				obj.put("dId", "无");

@@ -179,12 +179,13 @@ public class OrderDao extends BaseDao<Order> {
 	// }
 
 	public Order schedule(Motorcade motorcade, Driver driver, Truck truck, Client client, OrderType type, String dId, List<String> cIds,
-			List<Image> image, List<Cargo> cargo, Place cargoSource, Place cargoDestination, String oId, Ore ore, Place oreSource, User scheduler) {
+			List<Image> image, List<Cargo> cargo, Place cargoSource, Place cargoDestination, String oId, Ore ore, Place oreSource, User scheduler, boolean isSelfOrder) {
 		Order order = new Order();
 		order.setOrderType(type);
 		order.setClient(client);
 		order.setDriver(driver);
 		order.setTruck(truck);
+		order.setSelfOrder(isSelfOrder);
 
 		order.setStatus(OrderStatus.New);
 
